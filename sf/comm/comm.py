@@ -24,7 +24,8 @@ class Comm(object):
         参数：
         data: 传输的报文
         """
-        return base64.b64encode(md5(f"{data}{self._checkword}".encode("utf-8")).digest()).decode("utf-8")
+        s = "{}{}".format(data, self._checkword)
+        return base64.b64encode(md5(s.encode("utf-8")).digest()).decode("utf-8")
 
     def gen_xmldata(self, data):
         """
@@ -84,7 +85,7 @@ class Comm(object):
             data = self._parse(body)
             res["result"] = 0
             res["data"] = data
-            
+
         return res
 
     def post(self, data):
