@@ -5,9 +5,6 @@
 from sf.comm import Comm
 from sf.order import Order
 
-URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
-
-
 class SF(object):
     """顺丰SDK"""
 

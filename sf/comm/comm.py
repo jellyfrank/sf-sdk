@@ -5,6 +5,9 @@
 import base64
 from hashlib import md5
 from lxml import etree
+import requests
+
+URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
 
 
 class Comm(object):
@@ -21,7 +24,7 @@ class Comm(object):
         参数：
         data: 传输的报文
         """
-        return base64.b64encode(md5(f"{self._checkword}{data}{self._checkword}".encode("utf-8")).digest()).decode("utf-8")
+        return base64.b64encode(md5(f"{data}{self._checkword}".encode("utf-8")).digest()).decode("utf-8")
 
     def gen_xmldata(self, data):
         """
@@ -35,21 +38,63 @@ class Comm(object):
         root.append(head)
         for key, value in data["data"].items():
             # 仅支持二级嵌套
+            el = etree.Element(key)
             if type(value) is dict:
-                el = etree.Element(key)
                 for k, v in value.items():
+                    el2 = etree.Element(k)
                     if type(v) is dict:
-                        el2 = etree.Element(k)
                         for name, att in v.items():
                             el2.set(name, att)
                         el.append(el2)
                     else:
                         el.set(k, v)
-                root.append(el)
-        return etree.tostring(root, xml_declaration=True, encoding="UTF-8")
+            else:
+                el.set(key, value)
+            root.append(el)
+        return etree.tostring(root, xml_declaration=True, encoding="UTF-8").decode("utf-8")
 
-    def post(self,xml,verifycode):
+    def _parse(self, root):
+        data = {}
+        for node in root.getchildren():
+            data[node.tag] = {}
+            # 获取属性和属性值
+            for att, val in node.items():
+                data[node.tag][att] = val
+            # 获取子节点
+            if len(node):
+                for n in node.getchildren():
+                    data[node.tag][n.tag] = self._parse(node)
+        return data
+
+    def parse_response(self, data):
+        """
+        解析响应结果
+        """
+        res = {}
+        root = etree.fromstring(data)
+        head = root.xpath("//Head")[0].text
+        if head == "ERR":
+            # 发生错误，停止解析
+            res["result"] = 1
+            res["msg"] = root.xpath("//ERROR")[0].text
+
+        if head == "OK":
+            # 返回成功
+            body = root.xpath("//Body")[0]
+            data = self._parse(body)
+            res["result"] = 0
+            res["data"] = data
+            
+        return res
+
+    def post(self, data):
         """
         提交请求
         """
-        
+        xml = self.gen_xmldata(data)
+        post_data = {
+            "xml": xml,
+            "verifyCode": self.gen_verifycode(xml)
+        }
+        response = requests.post(URL, post_data)
+        return self.parse_response(response.content)
