@@ -19,4 +19,7 @@ sf.order.create_order(clientid,..)
 
 ```
 
-目前只实现了一个下单的接口，持续更新中...
+## changelog
+
+* [0.0.3] 新增确定/取消订单接口
+  
