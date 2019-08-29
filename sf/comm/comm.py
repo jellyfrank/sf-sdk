@@ -45,7 +45,8 @@ class Comm(object):
                     el2 = etree.Element(k)
                     if type(v) is dict:
                         for name, att in v.items():
-                            el2.set(name, att)
+                            if att:
+                                el2.set(name, att)
                         el.append(el2)
                     else:
                         el.set(k, v)
@@ -92,6 +93,7 @@ class Comm(object):
         """
         提交请求
         """
+        print(data)
         xml = self.gen_xmldata(data)
         post_data = {
             "xml": xml,

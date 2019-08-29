@@ -36,3 +36,28 @@ class Order(Comm):
                 data["data"]["Order"][i] = values[i]
 
         return self.post(data)
+
+    def confirm_order(self, orderid, mailno, dealtype="1", customs_batchs=None, agent_no=None, consign_emp_code=None, source_zone_code=None, in_process_waybill_no=None,
+                      weight=None, volume=None, return_tracking=None, express_type=None, children_nos=None, waybill_size=None, is_gen_eletric_pic="1"):
+        """确认/取消订单接口"""
+        data = {
+            "service": "OrderConfirmService",
+            "data": {
+                "OrderConfirm": {
+                    "OrderConfirmOption": {
+
+                    }
+                }
+            }
+        }
+
+        frame = inspect.currentframe()
+        args, _, _, values = inspect.getargvalues(frame)
+        for i in args:
+            if i != "self":
+                if i in ("weight", "volume", "return_tracking", "express_type", "children_nos", "waybill_size", "is_gen_eletric_pic"):
+                    data["data"]["OrderConfirm"]["OrderConfirmOption"][i] = values[i]
+                elif values[i]:
+                    data["data"]["OrderConfirm"][i] = values[i]
+
+        return self.post(data)
