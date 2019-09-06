@@ -1,0 +1,15 @@
+language: python
+
+notifications:
+  email: false
+
+sudo: false
+
+python:
+  - '3.6'
+
+install:
+  - pip install -r requirements.txt
+
+script: 
+  - python -m sf.tests.test_order
