@@ -1,15 +1,19 @@
 language: python
-
 notifications:
   email: false
-
 sudo: false
-
 python:
-  - '3.6'
-
+- '3.6'
 install:
-  - pip install -r requirements.txt
-
-script: 
-  - python -m sf.tests.test_order
+- pip install -r requirements.txt
+script:
+- python -m sf.tests.test_order
+deploy:
+  provider: pypi
+  user: blackcat
+  on:
+    python: 3.6
+    tags: true
+    branch: master
+  password:
+    secure: xMlol7prP3byFnfLgchz5rSE4xflxOOLzO9RA8sYJ5lwtDIRDW6FwZ1QaFd1tBIj1ElEFhPTN5oGUYpL344SDfVJR4QxsMVFs/A2JpU/Qno497GAPf9TFwkkRSCXGJ0U6l5s1PZQof1qNYilLQE3SJhsVC2+ZUYPEVvDxHdlMlLvx4oN7zNjgWQRXTBA3wHYWxMFTVK2UMNYUpeYdCaXu2d/Lgb1QA6SbAZMH0ldVxHLSkvJg/jDkiiJSVUle76N88ZrVa5g5s/QpQXfAnSvvsz4wPj9oSoZAhong9p5sQsA6PBXbLfCsqrDNTkn5g1bFO9OMhl0atZUYoFNPlHuMaJb+jOhMASQGZQdh/K3KIQKFf19h+l3QBg3b3wTFtwtVOj43n88SmaWgLxjWYEfXv2uBp30QQV+qgFEJwRv/K1Yc4Nzg7/VeqJVJ7om9GPsfDVpd5mOtCZO32KcknfbrL6d5sDwR5YzKMc3+Zoes9yH/8SsGCSkmSZTMsAh8uP7/XqRtMYbpnBskn6OXTIyYE5M1E6y9UPKid8Qr7aS74jZ0gTbD3IawE8XbWuOfNIbxciUmQSqaVzxjtyTVUISW3bkHJToQhgtPdHJ6/gOguiHMwWBWuN/erlmmKArsklEnWibXJ0eJXaacwDbz5bNApYWTUHcpo3Mq7XBdMJCmn0=
