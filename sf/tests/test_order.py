@@ -12,16 +12,16 @@ class TestOrder(unittest.TestCase):
 
     def test_order(self):
         """测试下单"""
-
-        print(self.sf.order.create_order("SFKD-20160219000021", "测试公司",
-                                    "张三", "18512345678", "丰县", "北京市昌平区", "15112345678"))
+        # 顺丰接口不允许重复下单，因此拿到结果就算通过
+        res = self.sf.order.create_order("SFKD-20160219000021", "测试公司",
+                                    "张三", "18512345678", "丰县", "北京市昌平区", "15112345678")
+        self.assertIn(res["result"],[1,0])
 
     def test_cancel_order(self):
         """测试取消订单"""
         
-        print(self.sf.order.confirm_order("SFKD-20160219000021","444017832497","2"))
-
-    
+        res = self.sf.order.confirm_order("SFKD-20160219000021","444017832497","2")
+        self.assertIn(res["result"],[1,0])
 
 
 if __name__ == "__main__":

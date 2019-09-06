@@ -93,7 +93,6 @@ class Comm(object):
         """
         提交请求
         """
-        print(data)
         xml = self.gen_xmldata(data)
         post_data = {
             "xml": xml,
