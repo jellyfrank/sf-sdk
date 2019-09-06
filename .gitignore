@@ -1,6 +1,6 @@
 **/**.pyc
 .vscode
 __pycache__
-sf/tests
+# sf/tests
 dist
 *.egg-info

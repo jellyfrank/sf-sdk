@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/block-cat/sf-sdk.svg?branch=master)](https://travis-ci.org/block-cat/sf-sdk)
+
 # 顺丰第三方Python SDK
 
 看了一下官方的sdk，怎么说呢，有点不忍直视，而且官方的通讯格式是xml用起来好像也没有那么方便，于是决定自己写一个，把接口数据和返回结果都改成了json格式。
