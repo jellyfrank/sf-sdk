@@ -61,3 +61,25 @@ class Order(Comm):
                     data["data"]["OrderConfirm"][i] = values[i]
 
         return self.post(data)
+
+    def get_order(self, orderid, search_type="1"):
+        """
+        订单结果查询接口
+        参数：
+        order_id: 客户订单号
+        search_type: 查询类型:1,正向单查询,传入
+的orderid为正向定单号,2,退货单查询,传入的orderid
+为退货原始订单号
+        """
+
+        data = {
+            "service": "OrderSearchService",
+            "data": {
+                "OrderSearch": {
+                    "orderid": orderid,
+                    "search_type": search_type
+                },
+            }
+        }
+
+        return self.post(data)

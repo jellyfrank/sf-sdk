@@ -23,6 +23,10 @@ class TestOrder(unittest.TestCase):
         res = self.sf.order.confirm_order("SFKD-20160219000021","444017832497","2")
         self.assertIn(res["result"],[1,0])
 
+    def test_get_order(self):
+        """测试订单查询接口"""
+        self.assertEquals(self.sf.order.get_order("SFKD-20160219000021"),1)
+
 
 if __name__ == "__main__":
     unittest.main()

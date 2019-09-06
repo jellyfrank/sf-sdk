@@ -37,6 +37,8 @@ class Comm(object):
         head = etree.Element("Head")
         head.text = data.get("clientcode", self._clientcode)
         root.append(head)
+        body = etree.Element("Body")
+
         for key, value in data["data"].items():
             # 仅支持二级嵌套
             el = etree.Element(key)
@@ -52,7 +54,8 @@ class Comm(object):
                         el.set(k, v)
             else:
                 el.set(key, value)
-            root.append(el)
+            body.append(el)
+        root.append(body)
         return etree.tostring(root, xml_declaration=True, encoding="UTF-8").decode("utf-8")
 
     def _parse(self, root):
@@ -98,5 +101,8 @@ class Comm(object):
             "xml": xml,
             "verifyCode": self.gen_verifycode(xml)
         }
+
+        print(post_data)
         response = requests.post(URL, post_data)
+        print(response.content.decode('utf-8'))
         return self.parse_response(response.content)
