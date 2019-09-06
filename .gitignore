@@ -4,3 +4,4 @@ __pycache__
 # sf/tests
 dist
 *.egg-info
+.coverage
