@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 # @Time    : 2019-08-21
 # @Author  : Kevin Kong (kfx2007@163.com)
 
@@ -56,7 +56,7 @@ class Comm(object):
                 el.set(key, value)
             body.append(el)
         root.append(body)
-        return etree.tostring(root, xml_declaration=True, encoding="UTF-8").decode("utf-8")
+        return etree.tostring(root, xml_declaration=True)
 
     def _parse(self, root):
         data = {}
@@ -102,7 +102,5 @@ class Comm(object):
             "verifyCode": self.gen_verifycode(xml)
         }
 
-        print(post_data)
         response = requests.post(URL, post_data)
-        print(response.content.decode('utf-8'))
         return self.parse_response(response.content)

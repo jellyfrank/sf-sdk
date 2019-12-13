@@ -1,5 +1,5 @@
 
-#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 # @Time    : 2019-08-21
 # @Author  : Kevin Kong (kfx2007@163.com)
 
