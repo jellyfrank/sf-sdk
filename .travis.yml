@@ -3,7 +3,7 @@ notifications:
   email: false
 sudo: false
 python:
-- '3.6'
+- '2.7'
 install:
 - pip install -r requirements.txt
 script:
@@ -12,7 +12,7 @@ deploy:
   provider: pypi
   user: blackcat
   on:
-    python: 3.6
+    python: 2.7
     tags: true
     branch: master
   password:
