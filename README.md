@@ -24,5 +24,8 @@ sf.order.create_order(clientid,..)
 
 ## changelog
 
+* [0.0.6] 新增路由查询接口
 * [0.0.3] 新增确定/取消订单接口
+
+python2 的同学请使用0.0.5 版本
   

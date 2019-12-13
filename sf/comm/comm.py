@@ -102,7 +102,5 @@ class Comm(object):
             "verifyCode": self.gen_verifycode(xml)
         }
 
-        print(post_data)
         response = requests.post(URL, post_data)
-        print(response.content.decode('utf-8'))
         return self.parse_response(response.content)

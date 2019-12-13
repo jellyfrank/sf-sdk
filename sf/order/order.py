@@ -83,3 +83,30 @@ class Order(Comm):
         }
 
         return self.post(data)
+
+    def get_route_info(self, tracking_number, tracking_type=1, method_type=1, reference_number=None, check_phoneNo=None):
+        """
+        路由信息查询接口
+        param tracking_number: 查询号，根据type不同，含义不同，多个单号以，分割
+        param tracking_type: 查询号类别，1 顺丰运单号 2 客户订单号 3 逆向单
+        param method_type: 路由查询类别 1:标准路由查询
+        param reference_number: 参考编码(目前针对亚马逊客户,由客户传)
+        param check_phoneNo: 校验电话号码后四位值;
+        """
+
+        data = {
+            "service": "RouteService",
+            "data": {
+                "RouteRequest": {
+                    "tracking_number": tracking_number
+                }
+            }
+        }
+
+        frame = inspect.currentframe()
+        args, _, _, values = inspect.getargvalues(frame)
+        for i in args:
+            if values[i] and i != 'self':
+                data["data"]["RouteRequest"][i] = str(values[i])
+
+        return self.post(data)
