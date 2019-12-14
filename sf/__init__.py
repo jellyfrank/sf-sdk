@@ -3,5 +3,5 @@
 # @Time    : 2019-08-21
 # @Author  : Kevin Kong (kfx2007@163.com)
 
-__version__ = "0.0.8"
+__version__ = "0.1.0"
 __author__ = "Kevin Kong"

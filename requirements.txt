@@ -3,3 +3,4 @@ lxml
 pytest
 coverage
 python-coveralls
+autils
