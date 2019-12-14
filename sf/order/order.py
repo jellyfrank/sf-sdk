@@ -92,6 +92,7 @@ class Order(Comm):
         param method_type: 路由查询类别 1:标准路由查询
         param reference_number: 参考编码(目前针对亚马逊客户,由客户传)
         param check_phoneNo: 校验电话号码后四位值;
+        return: 包含节点信息的路由，路由信息操作码 见https://qiao.sf-express.com/pages/developDoc/index.html?level2=949000
         """
 
         data = {

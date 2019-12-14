@@ -60,15 +60,33 @@ class Comm(object):
 
     def _parse(self, root):
         data = {}
-        for node in root.getchildren():
-            data[node.tag] = {}
-            # 获取属性和属性值
-            for att, val in node.items():
-                data[node.tag][att] = val
-            # 获取子节点
-            if len(node):
-                for n in node.getchildren():
-                    data[node.tag][n.tag] = self._parse(node)
+        # 如果所有node同名，应该使用List存储
+        if len(set([node.tag for node in root.getchildren()])) < len(root.getchildren()):
+            first = root.getchildren()[0]
+            data[first.tag] = []
+            for node in root.getchildren():
+                record = {}
+                for att, val in node.items():
+                    record[att] = val
+                data[first.tag].append(record)
+                # 获取子节点
+                if len(node.getchildren()):
+                    # for n in node.getchildren():
+                    data[node.tag] = self._parse(node)
+
+        else:
+            for node in root.getchildren():
+                data[node.tag] = {}
+                # 获取属性和属性值
+                for att, val in node.items():
+                    data[node.tag][att] = val
+                # 获取子节点
+                if len(node.getchildren()):
+                    # for n in node.getchildren():
+                    data[node.tag] = self._parse(node)
+        # 处理本节点的属性
+        for att, val in root.items():
+            data[att] = val
         return data
 
     def parse_response(self, data):
