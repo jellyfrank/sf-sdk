@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/block-cat/sf-sdk.svg?branch=master)](https://travis-ci.org/block-cat/sf-sdk)
 [![Coverage Status](https://coveralls.io/repos/github/block-cat/sf-sdk/badge.svg?branch=master)](https://coveralls.io/github/block-cat/sf-sdk?branch=master)
 
-# 顺丰第三方Python SDK
+# 顺丰 Python SDK
 
-看了一下官方的sdk，怎么说呢，有点不忍直视，而且官方的通讯格式是xml用起来好像也没有那么方便，于是决定自己写一个，把接口数据和返回结果都改成了json格式。
+官方SDK只是一个demo，而且数据格式为XML，处理起来并不方便，因此起了这个项目并将数据格式调整为了json格式。
 
 ## 使用说明
 

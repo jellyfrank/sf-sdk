@@ -5,9 +5,44 @@
 import base64
 from hashlib import md5
 from lxml import etree
+import inspect
+from itertools import zip_longest
+from functools import partial
 import requests
 
 URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
+
+class BaseService(object):
+
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, instance, owner):
+        return partial(self.__call__, instance)
+
+    def __call__(self, *args, **kwargs):
+        data = {}
+        service = self.__name__
+        service_name = self.__name__.split("Service")[0]
+        data["service"] = service
+        ags = inspect.getfullargspec(self.func).args
+        vdata = dict(zip_longest(ags, args))
+        data.update(kwargs)
+        vdata = {key: value for key,
+                 value in vdata.items() if value and key != 'self'}
+        data.update({
+            "data": {
+                service_name: vdata
+            }
+        })
+        return args[0].post(data)
+
+
+class Service(type):
+
+    def __new__(cls, name, bases=None, attrs={}):
+        attrs['__name__'] = name
+        return type.__new__(cls, name, (BaseService,), attrs)
 
 
 class Comm(object):
