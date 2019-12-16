@@ -12,6 +12,7 @@ import requests
 
 URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
 
+
 class BaseService(object):
 
     def __init__(self, func):
@@ -21,18 +22,30 @@ class BaseService(object):
         return partial(self.__call__, instance)
 
     def __call__(self, *args, **kwargs):
+        # 获取方法的默认值
+        vals = tuple(list(args) + list(inspect.getfullargspec(
+            self.func).defaults if inspect.getfullargspec(self.func).defaults else []))
         data = {}
-        service = self.__name__
-        service_name = self.__name__.split("Service")[0]
-        data["service"] = service
+        data["service"] = self.__name__
         ags = inspect.getfullargspec(self.func).args
-        vdata = dict(zip_longest(ags, args))
-        data.update(kwargs)
-        vdata = {key: value for key,
-                 value in vdata.items() if value and key != 'self'}
+        vdata = dict(zip_longest(ags, vals))
+        vdata.update(kwargs)
+        if self.options is None:
+            vdata = {key: str(value) for key,
+                     value in vdata.items() if value and key != 'self'}
+        else:
+            vdata.pop("self")
+            vdata = {k: v for k, v in vdata.items() if v}
+            key, start = self.options
+            parent_keys = list(vdata.keys())[:start]
+            child_keys = list(vdata.keys())[start:]
+            vdata.update({key: str(vdata[key])
+                          for key in parent_keys if vdata[key] is not None and key != 'self'})
+            vdata[key] = {key: str(vdata[key])
+                          for key in child_keys if vdata[key] and key != 'self'}
         data.update({
             "data": {
-                service_name: vdata
+                self.key: vdata
             }
         })
         return args[0].post(data)
@@ -40,8 +53,14 @@ class BaseService(object):
 
 class Service(type):
 
-    def __new__(cls, name, bases=None, attrs={}):
+    def __init__(cls, *args, **kwargs):
+        pass
+
+    def __new__(cls, name, key=None, options=None):
+        attrs = {}
         attrs['__name__'] = name
+        attrs["key"] = key if key else name.split("Service")[0]
+        attrs["options"] = options
         return type.__new__(cls, name, (BaseService,), attrs)
 
 
