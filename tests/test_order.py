@@ -12,6 +12,7 @@ class TestOrder(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True)
+        # cls.sf = SF("APQBJGXJ", "KYwDO83YlKECHIyWjZoHRnys8sPpFJLU")
         cls.order_no = String.generate_digits(12)
         cls.mail_no = None
 
@@ -26,13 +27,13 @@ class TestOrder(unittest.TestCase):
         """测试取消订单"""
 
         res = self.sf.order.confirm_order(
-            "SFKD-20160219000021", "444017832497", "2")
+            "SFKD-20160219000021", "444017832497", dealtype="2")
         self.assertIn(res["result"], [1, 0])
 
     def test_get_order(self):
         """测试订单查询接口"""
-        res = self.sf.order.get_order("SFKD-20160219000021")
-        self.assertIn(res["result"], [1, 0])
+        res = self.sf.order.get_order(self.order_no)
+        self.assertEqual(res["result"], 0, res)
 
     def test_get_router(self):
         """测试路由信息"""
@@ -48,6 +49,8 @@ class TestOrder(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(TestOrder("test_order"))
+    suite.addTest(TestOrder("test_cancel_order"))
+    suite.addTest(TestOrder("test_get_order"))
     suite.addTest(TestOrder("test_get_router"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)

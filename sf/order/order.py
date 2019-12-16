@@ -23,31 +23,15 @@ class Order(Comm):
         """
         pass
 
-    def confirm_order(self, orderid, mailno, dealtype="1", customs_batchs=None, agent_no=None, consign_emp_code=None, source_zone_code=None, in_process_waybill_no=None,
-                      weight=None, volume=None, return_tracking=None, express_type=None, children_nos=None, waybill_size=None, is_gen_eletric_pic="1"):
+    @Service("OrderConfirmService", None, ("OrderConfirmOption", 9))
+    def confirm_order(self, orderid, mailno, dealtype="1", customs_batchs=None, 
+                      agent_no=None, consign_emp_code=None, source_zone_code=None, in_process_waybill_no=None,
+                      weight=None, volume=None, return_tracking=None, express_type=None, children_nos=None, 
+                      waybill_size=None, is_gen_eletric_pic="1"):
         """确认/取消订单接口"""
-        data = {
-            "service": "OrderConfirmService",
-            "data": {
-                "OrderConfirm": {
-                    "OrderConfirmOption": {
+        pass
 
-                    }
-                }
-            }
-        }
-
-        frame = inspect.currentframe()
-        args, _, _, values = inspect.getargvalues(frame)
-        for i in args:
-            if i != "self":
-                if i in ("weight", "volume", "return_tracking", "express_type", "children_nos", "waybill_size", "is_gen_eletric_pic"):
-                    data["data"]["OrderConfirm"]["OrderConfirmOption"][i] = values[i]
-                elif values[i]:
-                    data["data"]["OrderConfirm"][i] = values[i]
-
-        return self.post(data)
-
+    @Service("OrderSearchService")
     def get_order(self, orderid, search_type="1"):
         """
         订单结果查询接口
@@ -57,20 +41,9 @@ class Order(Comm):
 的orderid为正向定单号,2,退货单查询,传入的orderid
 为退货原始订单号
         """
+        pass
 
-        data = {
-            "service": "OrderSearchService",
-            "data": {
-                "OrderSearch": {
-                    "orderid": orderid,
-                    "search_type": search_type
-                },
-            }
-        }
-
-        return self.post(data)
-
-    @Service("RouteService")
+    @Service("RouteService", "RouteRequest")
     def get_route_info(self, tracking_number, tracking_type=1, method_type=1, reference_number=None, check_phoneNo=None):
         """
         路由信息查询接口
@@ -81,20 +54,4 @@ class Order(Comm):
         param check_phoneNo: 校验电话号码后四位值;
         return: 包含节点信息的路由，路由信息操作码 见https://qiao.sf-express.com/pages/developDoc/index.html?level2=949000
         """
-
-        data = {
-            "service": "RouteService",
-            "data": {
-                "RouteRequest": {
-                    "tracking_number": tracking_number
-                }
-            }
-        }
-
-        frame = inspect.currentframe()
-        args, _, _, values = inspect.getargvalues(frame)
-        for i in args:
-            if values[i] and i != 'self':
-                data["data"]["RouteRequest"][i] = str(values[i])
-
-        return self.post(data)
+        pass
