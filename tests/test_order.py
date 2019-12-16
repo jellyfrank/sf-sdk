@@ -42,6 +42,12 @@ class TestOrder(unittest.TestCase):
         # 顺丰路由 节点80为签收标识
         self.assertTrue(len(res["data"]["RouteResponse"]["Route"]) > 1, res)
 
+    def test_5_can_deliver(self):
+        """是否可以收派"""
+        res = self.sf.order.can_delivery("北京市昌平区回龙观新龙城2期36A号楼")
+        print(res)
+        self.assertEqual(res["result"], 0, res)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -49,5 +55,6 @@ if __name__ == "__main__":
     suite.addTest(TestOrder("test_2_get_order"))
     suite.addTest(TestOrder("test_3_cancel_order"))
     suite.addTest(TestOrder("test_4_get_router"))
+    suite.addTest(TestOrder("test_5_can_deliver"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
