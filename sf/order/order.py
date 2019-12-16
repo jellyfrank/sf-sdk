@@ -28,7 +28,11 @@ class Order(Comm):
                       agent_no=None, consign_emp_code=None, source_zone_code=None, in_process_waybill_no=None,
                       weight=None, volume=None, return_tracking=None, express_type=None, children_nos=None, 
                       waybill_size=None, is_gen_eletric_pic="1"):
-        """确认/取消订单接口"""
+        """
+        确认/取消订单接口
+        mailno: dealtype 为1时必填
+        dealtype: 1 确认 2 取消
+        """
         pass
 
     @Service("OrderSearchService")
