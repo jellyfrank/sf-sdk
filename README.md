@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/block-cat/sf-sdk.svg?branch=master)](https://travis-ci.org/block-cat/sf-sdk)
 [![Coverage Status](https://coveralls.io/repos/github/block-cat/sf-sdk/badge.svg?branch=master)](https://coveralls.io/github/block-cat/sf-sdk?branch=master)
-![PYPI](https://img.shields.io/pypi/v/sf-sdk)
+[![PYPI](https://img.shields.io/pypi/v/sf-sdk)](https://pypi.org/project/sf-sdk/)
 
 # 顺丰 Python SDK
 
@@ -25,7 +25,7 @@ sf.order.create_order(clientid,..)
 
 ## changelog
 
-* [0.1.3] 修复windows下安装报错的问题
+* [0.1.4] 修复windows下安装报错的问题
 * [0.1.1] 新增订单筛选接口
 * [0.1.0] 修复路由查询结果中包含数组类型的数据格式错误
 * [0.0.6] 新增路由查询接口
