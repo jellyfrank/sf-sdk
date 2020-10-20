@@ -11,6 +11,7 @@ from functools import partial
 import requests
 
 URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
+SANDBOXURL = "https://sfapi-sbox.sf-express.com/sfexpressService"
 
 
 class BaseService(object):
@@ -70,6 +71,7 @@ class Comm(object):
     def __get__(self, instance, owner):
         self._clientcode = instance.clientcode
         self._checkword = instance.checkword
+        self._sandbox = instance.sandbox
         return self
 
     def gen_verifycode(self, data):
@@ -143,6 +145,12 @@ class Comm(object):
             data[att] = val
         return data
 
+    # def get_jsondata(self,data):
+    #     return {
+    #         "msgData": data['data'],
+    #         "msgmsgDigest": self.gen_verifycode(data)
+    #     }
+
     def parse_response(self, data):
         """
         解析响应结果
@@ -174,5 +182,6 @@ class Comm(object):
             "verifyCode": self.gen_verifycode(xml)
         }
 
-        response = requests.post(URL, post_data)
+        response = requests.post(
+            SANDBOXURL if self._sandbox else URL, post_data)
         return self.parse_response(response.content)

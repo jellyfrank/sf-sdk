@@ -13,7 +13,9 @@
 ```python
 pip install sf-sdk
 ```
-使用
+
+## 使用
+
 ```python
 from sf.api import SF
 
@@ -22,14 +24,3 @@ sf = SF("clientcode","checkword")
 sf.order.create_order(clientid,..)
 
 ```
-
-## changelog
-
-* [0.1.4] 修复windows下安装报错的问题
-* [0.1.1] 新增订单筛选接口
-* [0.1.0] 修复路由查询结果中包含数组类型的数据格式错误
-* [0.0.6] 新增路由查询接口
-* [0.0.3] 新增确定/取消订单接口
-
-python2 的同学请使用0.0.9 版本
-  

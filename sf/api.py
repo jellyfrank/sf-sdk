@@ -5,6 +5,7 @@
 from sf.comm import Comm
 from sf.order import Order
 
+
 class SF(object):
     """顺丰SDK"""
 
@@ -14,6 +15,7 @@ class SF(object):
         """
         self.clientcode = clientcode
         self.checkword = checkword
+        self.sandbox = sandbox
 
     comm = Comm()
     order = Order()

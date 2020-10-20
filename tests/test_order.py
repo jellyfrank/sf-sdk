@@ -35,10 +35,10 @@ class TestOrder(unittest.TestCase):
     def test_4_get_router(self):
         """测试路由信息"""
         # 只有先下单 才能拿得到路由信息 否则是空
-        data = self.sf.order.create_order(String.generate_digits(12), "测试公司",
-                                          "张三", "18512345678", "丰县", "北京市昌平区", "15112345678")
-        mail_no = data["data"]["OrderResponse"]["mailno"]
-        res = self.sf.order.get_route_info(mail_no)
+        # data = self.sf.order.create_order(String.generate_digits(12), "测试公司",
+        #                                   "张三", "18512345678", "丰县", "北京市昌平区", "15112345678")
+        # mail_no = data["data"]["OrderResponse"]["mailno"]
+        res = self.sf.order.get_route_info('444020261358')
         # 顺丰路由 节点80为签收标识
         self.assertTrue(len(res["data"]["RouteResponse"]["Route"]) > 1, res)
 
