@@ -3,8 +3,6 @@
 # @Author  : Kevin Kong (kfx2007@163.com)
 
 from sf.comm import Comm, Service
-import inspect
-
 
 class Order(Comm):
 

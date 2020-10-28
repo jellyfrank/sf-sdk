@@ -12,7 +12,7 @@ class TestOrder(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True)
+        cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True, "1.0")
         cls.order_no = String.generate_digits(12)
         cls.mail_no = None
 

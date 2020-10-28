@@ -9,9 +9,15 @@ import inspect
 from itertools import zip_longest
 from functools import partial
 import requests
+from time import time
+from urllib import parse
+import json
+import uuid
 
 URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
 SANDBOXURL = "https://sfapi-sbox.sf-express.com/sfexpressService"
+NEW_URL = "https://sfapi.sf-express.com/std/service"
+NEW_SANDBOXURL = "https://sfapi-sbox.sf-express.com/std/service"
 
 
 class BaseService(object):
@@ -24,10 +30,9 @@ class BaseService(object):
 
     def __call__(self, *args, **kwargs):
         # 获取方法的默认值
+        comm = args[0]
         vals = tuple(list(args) + list(inspect.getfullargspec(
             self.func).defaults if inspect.getfullargspec(self.func).defaults else []))
-        data = {}
-        data["service"] = self.__name__
         ags = inspect.getfullargspec(self.func).args
         vdata = dict(zip_longest(ags, vals))
         vdata.update(kwargs)
@@ -44,12 +49,19 @@ class BaseService(object):
                           for key in parent_keys if vdata[key] is not None and key != 'self'})
             vdata[key] = {key: str(vdata[key])
                           for key in child_keys if vdata[key] and key != 'self'}
-        data.update({
-            "data": {
-                self.key: vdata
+        if comm._version == "1.0":
+            data = {
+                "service": self.__name__,
+                "data": {
+                    self.key: vdata
+                }
             }
-        })
-        return args[0].post(data)
+        if comm._version == "2.0":
+            print('----------')
+            print(vdata)
+            data = vdata
+            data['service'] = self.__name__
+        return comm.post(data)
 
 
 class Service(type):
@@ -72,6 +84,7 @@ class Comm(object):
         self._clientcode = instance.clientcode
         self._checkword = instance.checkword
         self._sandbox = instance.sandbox
+        self._version = instance.version
         return self
 
     def gen_verifycode(self, data):
@@ -82,6 +95,13 @@ class Comm(object):
         """
         s = "{}{}".format(data, self._checkword)
         return base64.b64encode(md5(s.encode("utf-8")).digest()).decode("utf-8")
+
+    def get_signature(self, data, timestamp=None):
+        """
+        获取数字签名
+        """
+        data = json.dumps(data, separators=(',', ":"))
+        return base64.b64encode(md5(parse.quote(f"{data}{timestamp if timestamp else int(time())}{self._checkword}", encoding='utf-8').encode('utf-8')).digest()).decode("utf-8")
 
     def gen_xmldata(self, data):
         """
@@ -145,12 +165,6 @@ class Comm(object):
             data[att] = val
         return data
 
-    # def get_jsondata(self,data):
-    #     return {
-    #         "msgData": data['data'],
-    #         "msgmsgDigest": self.gen_verifycode(data)
-    #     }
-
     def parse_response(self, data):
         """
         解析响应结果
@@ -176,12 +190,32 @@ class Comm(object):
         """
         提交请求
         """
-        xml = self.gen_xmldata(data)
-        post_data = {
-            "xml": xml,
-            "verifyCode": self.gen_verifycode(xml)
-        }
+        if self._version == "1.0":
+            xml = self.gen_xmldata(data)
+            post_data = {
+                "xml": xml,
+                "verifyCode": self.gen_verifycode(xml)
+            }
 
-        response = requests.post(
-            SANDBOXURL if self._sandbox else URL, post_data)
-        return self.parse_response(response.content)
+            response = requests.post(
+                SANDBOXURL if self._sandbox else URL, post_data)
+            return self.parse_response(response.content)
+
+        if self._version == "2.0":
+            headers = {
+                "Content-type": "application/x-www-form-urlencoded;charset=UTF-8"
+            }
+            invoke_time = int(time())
+            service = data.pop("service")
+            post_data = {
+                "partnerID": self._clientcode,
+                "requestID": str(uuid.uuid4()),
+                "serviceCode": service,
+                "timestamp": invoke_time,
+                "msgDigest": self.get_signature(data, timestamp=invoke_time),
+                "msgData": data
+            }
+            response = requests.post(
+                NEW_SANDBOXURL if self._sandbox else NEW_URL, json=post_data, headers=headers
+            )
+            return response.json()
