@@ -8,10 +8,18 @@ from lxml import etree
 import inspect
 from itertools import zip_longest
 from functools import partial
-import requests
 
-URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
-SANDBOXURL = "https://sfapi-sbox.sf-express.com/sfexpressService"
+import requests
+import uuid
+import time
+from copy import copy
+import json
+
+URL = "https://bspgw.sf-express.com/std/service"
+HKURL = "https://sfapi-hk.sf-express.com/std/service"
+SANDBOXURL = "https://sfapi-sbox.sf-express.com/std/service"
+TOKEN_URL = "https://sfapi.sf-express.com/oauth2/accessToken"
+TOKEN_SANDBOXURL = "https://sfapi-sbox.sf-express.com/oauth2/accessToken"
 
 
 class BaseService(object):
@@ -72,116 +80,56 @@ class Comm(object):
         self._clientcode = instance.clientcode
         self._checkword = instance.checkword
         self._sandbox = instance.sandbox
+        self.get_access_token()
         return self
 
-    def gen_verifycode(self, data):
-        """
-        生成校验码
-        参数：
-        data: 传输的报文
-        """
-        s = "{}{}".format(data, self._checkword)
-        return base64.b64encode(md5(s.encode("utf-8")).digest()).decode("utf-8")
-
-    def gen_xmldata(self, data):
-        """
-        生成xml报文
-        """
-        root = etree.Element("Request")
-        root.set("service", data.get("service", None))
-        root.set("lang", data.get("lang", "zh-CN"))
-        head = etree.Element("Head")
-        head.text = data.get("clientcode", self._clientcode)
-        root.append(head)
-        body = etree.Element("Body")
-
-        for key, value in data["data"].items():
-            # 仅支持二级嵌套
-            el = etree.Element(key)
-            if type(value) is dict:
-                for k, v in value.items():
-                    el2 = etree.Element(k)
-                    if type(v) is dict:
-                        for name, att in v.items():
-                            if att:
-                                el2.set(name, att)
-                        el.append(el2)
-                    else:
-                        el.set(k, v)
-            else:
-                el.set(key, value)
-            body.append(el)
-        root.append(body)
-        return etree.tostring(root, xml_declaration=True, encoding="UTF-8").decode("utf-8")
-
-    def _parse(self, root):
-        data = {}
-        # 如果所有node同名，应该使用List存储
-        if len(set([node.tag for node in root.getchildren()])) < len(root.getchildren()):
-            first = root.getchildren()[0]
-            data[first.tag] = []
-            for node in root.getchildren():
-                record = {}
-                for att, val in node.items():
-                    record[att] = val
-                data[first.tag].append(record)
-                # 获取子节点
-                if len(node.getchildren()):
-                    # for n in node.getchildren():
-                    data[node.tag] = self._parse(node)
-
+    def get_access_token(self):
+        """获取AccessToken"""
+        url = f"{TOKEN_SANDBOXURL if self._sandbox else TOKEN_URL}?partnerID={self._clientcode}&secret={self._checkword}&grantType=password"
+        res = requests.post(url,headers={
+            "content-type":"application/x-www-form-urlencoded;charset=UTF-8"
+        }).json()
+        if res['apiResultCode'] == "A1000":
+            self._access_token = res['accessToken']
         else:
-            for node in root.getchildren():
-                data[node.tag] = {}
-                # 获取属性和属性值
-                for att, val in node.items():
-                    data[node.tag][att] = val
-                # 获取子节点
-                if len(node.getchildren()):
-                    # for n in node.getchildren():
-                    data[node.tag] = self._parse(node)
-        # 处理本节点的属性
-        for att, val in root.items():
-            data[att] = val
-        return data
+            self._access_token = None
+        return self._access_token
 
-    # def get_jsondata(self,data):
-    #     return {
-    #         "msgData": data['data'],
-    #         "msgmsgDigest": self.gen_verifycode(data)
-    #     }
+    def get_public_params(self):
+        """获取公共参数"""
+        data = {
+            "partnerID": self._clientcode,
+            "requestID": str(uuid.uuid4()),
+            "timestamp": int(time.time()),
+            "accessToken": self._access_token
+        }
+        return data    
 
-    def parse_response(self, data):
-        """
-        解析响应结果
-        """
-        res = {}
-        root = etree.fromstring(data)
-        head = root.xpath("//Head")[0].text
-        if head == "ERR":
-            # 发生错误，停止解析
-            res["result"] = 1
-            res["msg"] = root.xpath("//ERROR")[0].text
-
-        if head == "OK":
-            # 返回成功
-            body = root.xpath("//Body")[0]
-            data = self._parse(body)
-            res["result"] = 0
-            res["data"] = data
-
-        return res
-
-    def post(self, data):
+    def post(self,service, data):
         """
         提交请求
+
+        param data: 数据结构
         """
-        xml = self.gen_xmldata(data)
-        post_data = {
-            "xml": xml,
-            "verifyCode": self.gen_verifycode(xml)
+
+        post_data = self.get_public_params()
+        copy_data = copy(data)
+
+        for key,value in copy_data.items():
+            if value is None:
+                data.pop(key)
+
+        post_data.update({
+            "serviceCode": service,
+            "msgData": json.dumps(data)
+        })
+
+        headers = {
+            "content-type":"application/x-www-form-urlencoded"
         }
 
-        response = requests.post(
-            SANDBOXURL if self._sandbox else URL, post_data)
-        return self.parse_response(response.content)
+        url = SANDBOXURL if self._sandbox else URL
+        res =  requests.post(url, data=post_data, headers=headers).json()
+        if res['apiResultCode'] != 'A1000':
+            return res
+        return json.loads(res['apiResultData'])

@@ -2,166 +2,165 @@
 # @Time    : 2019-08-21
 # @Author  : Kevin Kong (kfx2007@163.com)
 
-from sf.comm import Comm, Service
-import inspect
+from sf.comm import Comm
 
 
 class Order(Comm):
 
-    @Service("OrderService")
-    def create_order(self, orderid, d_company, d_contact, d_tel, d_address, j_address, j_tel,
-                     mailno=None, is_gen_bill_no=None, j_company=None, j_contact=None, j_mobile=None,
-                     j_shippercode=None, j_country=None, j_province=None, j_city=None, j_county=None, j_post_code=None,
-                     d_mobile=None, d_deliverycode=None, d_country=None, d_province=None, d_city=None, d_county=None,
-                     d_post_code=None, custid=None, pay_method=None, express_type=None, parcel_quantity=None,
-                     cargo_length=None, cargo_width=None, cargo_height=None, volume=None, cargo_total_weight=None,
-                     declared_value=None, declared_value_currency=None, customs_batchs=None, sendstarttime=None,
-                     is_docall=None, need_return_tracking_no=None, return_tracking=None, d_tax_no=None, tax_pay_type=None,
-                     tax_set_accounts=None, original_number=None, payment_tool=None, payment_number=None, goods_code=None,
-                     in_process_waybill_no=None, brand=None, specifications=None, temp_range=None, order_name=None,
-                     order_cert_type=None, order_cert_no=None, order_source=None, template=None,
-                     remark=None, oneself_pickup_flg=None, dispatch_sys=None, filter_field=None, total_net_weight=None,
-                     send_remark_two=None, special_delivery_type_code=None, special_delivery_value=None,
-                     realname_num=None, merchant_pay_orde=None, routelabelForReturn=None, routelabelService=None,
-                     j_tax_no=None, is_unified_waybill_no=None, send_cert_type=None, send_cert_no=None
-                     ):
+    def create_order(self, orderId, contactInfoList, cargoDetails, monthlyCard=None, expressTypeId=1, isReturnRoutelabel=1, **kwargs):
         """
-        下单接口(国内/国际)
+        下订单接口
 
-        param orderid: 	客户订单号
-        param d_company: 到件方公司名称
-        param d_contact: 到件方联系人
-        param d_tel: 到件方联系电话
-        param j_address: 寄件方详细地址 电子面单必填
-        param j_tel: 寄件方联系电话 电子运面单必填
+        param language:String(10) 必填 响应报文的语言， 缺省值为zh-CN，目前支持以下值zh-CN 表示中文简体， zh-TW或zh-HK或 zh-MO表示中文繁体， en表示英文
+        param orderId: String(64) 客户订单号，不能重复
+        param waybillNoInfoList: List		顺丰运单号
+        param customsInfo: CustomsInfo 报关信息
+        param cargoDetails: List 托寄物信息
+        param cargoDesc: String(20) 拖寄物类型描述,如： 文件，电子产品，衣服等
+        param extraInfoList: List 扩展属性
+        param serviceList: List 增值服务信息，支持附录： 《增值服务产品表》
+        param contactInfoList: List 收寄双方信息
+        param monthlyCard: String(20): 条件 顺丰月结卡号 月结支付时传值，现结不需传值；沙箱联调可使用测试月结卡号7551234567（非正式，无须绑定，仅支持联调使用）
+        param payMethod: Number(2): 1: 付款方式，支持以下值： 1:寄方付 2:收方付 3:第三方付
+        param expressTypeId: Number(5): 1: 快件产品类别， 支持附录 《快件产品类别表》 的产品编码值，仅可使用与顺丰销售约定的快件产品
+        param parcelQty: Number(5): 1: 包裹数，一个包裹对应一个运单号；若包裹数大于1，则返回一个母运单号和N-1个子运单号
+        param totalLength: Number(16,5) 客户订单货物总长，单位厘米， 精确到小数点后3位， 包含子母件
+        param totalWidth: Number(16,5) 客户订单货物总宽，单位厘米， 精确到小数点后3位， 包含子母件
+        param totalHeight: Number(16,5) 客户订单货物总高，单位厘米， 精确到小数点后3位， 包含子母件
+        param volume: Number(16,5) : 订单货物总体积，单位立方厘米, 精确到小数点后3位，会用于计抛 (是否计抛具体商务沟通中 双方约定)
+        param totalWeight: Number(17,5): 条件 订单货物总重量（郑州空港海关必填）， 若为子母件必填， 单位千克， 精确到小数点后3位，如果提供此值， 必须>0 (子母件需>6)
+        param totalNetWeight: Number(17,5) 商品总净重
+        param sendStartTm: Date: 接收 到报 文的 时间: 要求上门取件开始时间， 格式： YYYY-MM-DD HH24:MM:SS， 示例： 2012-7-30 09:30:00 （预约单传预约截止时间，不赋值默认按当前时间下发，1小时内取件）
+        param isDocall: Number(1): 0: 是否通过手持终端 通知顺丰收派 员上门收件，支持以下值： 1：要求 0：不要求
+        param isSignBack: Number(1): 0: 是否返回签回单 （签单返还）的运单号， 支持以下值： 1：要求 0：不要求
+        param custReferenceNo: String(100) 客户参考编码：如客户原始订单号
+        param temperatureRange: Number(2): 条件 温度范围类型，当 express_type为12 医药温控件 时必填，支持以下值： 1:冷藏 3：冷冻
+        param orderSource: String(50) 订单平台类型 （对于平台类客户， 如果需要在订单中 区分订单来源， 则可使用此字段） 天猫:tmall， 拼多多：pinduoduo， 京东 : jd 等平台类型编码
+        param remark: String(100) 备注
+        param isOneselfPickup: Number(1): 0: 快件自取，支持以下值： 1：客户同意快件自取 0：客户不同意快件自取
+        param filterField: String 筛单特殊字段用来人工筛单
+        param isReturnQRCode: Number(1): 0: 是否返回用来退货业务的 二维码URL， 支持以下值： 1：返回二维码 0：不返回二维码
+        param specialDeliveryTypeCode: String(3) 特殊派送类型代码 1:身份验证
+        param specialDeliveryValue: String(100) 特殊派件具体表述 证件类型: 证件后8位如： 1:09296231（1 表示身份证， 暂不支持其他证件）
+        param merchantPayOrderNo: String(100) 商户支付订单号
+        param isReturnSignBackRoute label: Number(1): 0: 是否返回签回单路由标签： 默认0， 1：返回路由标签， 0：不返回
+        param isReturnRoutelabel: Number(1): 1: 是否返回路由标签： 默认1， 1：返回路由标签， 0：不返回；除部分特殊用户外，其余用户都默认返回
+        param isUnifiedWaybillNo: Number(1): 0: 是否使用国家统一面单号 1：是， 0：否（默认）
+        param podModelAddress: String(1024) 签单返还范本地址
+        param inProcessWaybillNo: String(100) 头程运单号（郑州空港海关必填）
+        param isGenWaybillNo: Number(1)	1	是否需求分配运单号1：分配 0：不分配（若带单号下单，请传值0）
 
-        param mailno: 	顺丰运单号,一个订单只能有一个母单号，对于路由推送注册,此字段为必填
-        param is_gen_bill_no: 	是否要求返回顺丰运单号: 1:要求 其它为不要求
-        param j_company: 寄件方公司名称,如果需要生成电子面单,则为必填。公司件必填
-        param j_contact: 寄件方联系人
-        param j_mobile: 寄件方手机j_tel和j_mobile必填一个
-        param j_shippercode: 寄件方国家/城市代码,跨境件必填
-        param j_country: 寄件方国家
-        param j_province: 寄件方所在省级行政区名称
-        param j_city: 寄件方所在地级行政区名称
-        param j_county: 寄件人所在县/区,必须是标准县/区称谓
-        param j_post_code: 寄方邮编,跨境件必填
-        param d_mobile: 到件方联系电话
-        param d_deliverycode: 到件方代码 ，跨境件必填
-        param d_country: 到方国家
-        param d_province: 到件方所在省份,必须是标准的省名称称谓
-        param d_city: 到件方所在城市名称,必须是标准的城市称谓
-        param d_county: 到件方所在县/区
-        param d_address: 到件方详细地址
-        param d_post_code: 到方邮编,跨境件必填
-        param custid: 顺丰月结卡号
-        param pay_method: 付款方式: 1:寄方付 2:收方付 3:第三方付
-        param express_type: 快件产品编码
-        param parcel_quantity: 包裹数,一个包裹对应一个运单号,如果是大于1个包裹,则返回则按照子母件的方式返回母运单号和子运单号
-        param cargo_length: 客户订单货物总长,单位厘米, 跨境件必填
-        param cargo_width: 客户订单货物总宽,单位厘米, 跨境件必填
-        param cargo_height: 客户订单货物总高,单位厘米, 跨境件必填
-        param volume: 订单货物总体积,单位立方厘米,精确到小数点后3位
-        param cargo_total_weight: 订单货物总重量,包含子母件,单位千克,精确到小数点后3位
-        param declared_value: 客户订单货物总声明价值, 跨境件必填
-        param declared_value_currency: 货物声明价值币别 国内默认CNY 国际默认USD
-        param customs_batchs: 报关批次
-        param sendstarttime: 上门取件时间要求上门取件开始时间,格式:YYYY-MM-DD HH24:MM:SS
-        param is_docall: 是否要求通过手持 终端通知顺丰收派员收件:1:要求 其它为不要求
-        param need_return_tracking_no: 是否要求通过手持 终端通知顺丰收派员收件:1:要求 其它为不要求
-        param return_tracking: 顺丰签回单服务运单号
-        param d_tax_no: 收件人税号（台湾件必传）
-        param tax_pay_type: 税金付款方式: 1:寄付 2:到付
-        param tax_set_accounts: 税金结算账号
-        param original_number: 电商原始订单号
-        param payment_tool: 支付工具
-        param payment_number: 	支付号码
-        param goods_code: 	商品编号
-        param in_process_waybill_no: 头程运单号
-        param brand: 货物品牌
-        param specifications: 货物规格型号
-        param temp_range: 温度范围类型,当express_type为12医药温 控件时必填:1为冷藏 3为冷冻
-        param order_name: 客户订单下单人姓名
-        param order_cert_type: 客户订单下单人证件类型 1、身份证2、护照 3、其他4、统编号5、税号 跨境件必填
-        param order_cert_no: 	客户订单下单人证件号 跨境件必填
-        param order_source: 客户订单来源(对于平台类客户,如果需要在订单中区分订单来源,则可使用此字段
-        param template: 业务模板编码,
-        param remark: 备注
-        param oneself_pickup_flg: 快件自取;1表示客户同意快件自取; 非1表示客户不同意快件自取
-        param dispatch_sys: 订单数据分发的系统编码
-        param filter_field: 筛单特殊字段
-        param total_net_weight: 商品总净重
-        param send_remark_two: 收方邮箱不为空则校验：^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$
-        param special_delivery_type_code: 	特殊派送类型代码1:身份验证
-        param special_delivery_value: 特殊派件具体表述
-        param realname_num: 实名认证流水号
-        param merchant_pay_orde: 商户订单号
-        param routelabelForReturn: 签回单路由标签返回 默认0 1:查询 其他:不查询
-        param routelabelService: 路由标签查询服务 默认0不查询
-        param j_tax_no: 寄件人税号
-        param is_unified_waybill_no: 是否使用国家统一面单号 1是 0 不是
-        param send_cert_type: 寄件证件类型 
-        param send_cert_no: 寄件人证件号码
+        return: dict 接口返回结果
+                success: true/false 接口调用是否成功
+                errorCode: 错误码
+                errorMsg: 错误信息
+                msgData: 成功后返回的数据
         """
-        pass
+        data = {
+            "language": "zh-CN",
+            "orderId": orderId,
+            "contactInfoList": [c.to_dict() for c in contactInfoList],
+            "cargoDetails": [c.to_dict() for c in cargoDetails],
+            "monthlyCard": monthlyCard,
+            "expressTypeId": expressTypeId,
+            "isReturnRoutelabel": isReturnRoutelabel,
+        }
 
-    @Service("OrderConfirmService", None, ("OrderConfirmOption", 9))
-    def confirm_order(self, orderid, mailno, dealtype="1", customs_batchs=None,
-                      agent_no=None, consign_emp_code=None, source_zone_code=None, in_process_waybill_no=None,
-                      weight=None, volume=None, return_tracking=None, express_type=None, children_nos=None,
-                      waybill_size=None, is_gen_eletric_pic="1"):
-        """
-        确认/取消订单接口
-        mailno: dealtype 为1时必填
-        dealtype: 1 确认 2 取消
-        """
-        pass
+        data.update(kwargs)
+        return self.post("EXP_RECE_CREATE_ORDER", data)
 
-    @Service("OrderSearchService")
-    def get_order(self, orderid, search_type="1"):
+    def confirm_order(self, orderId, dealType=1, **kwargs):
+        """
+        订单确认/取消接口-速运类API
+
+        param: orderId	String(64)	是		客户订单号
+        param: dealType	Number(1)	否	1	客户订单操作标识: 1:确认 (丰桥下订单接口默认自动确认，不需客户重复确认，该操作用在其它非自动确认的场景) 2:取消
+        param: waybillNoInfoList	List	否		顺丰运单号(如dealtype=1， 必填)
+        param: customsBatchs	String(20)	否		报关批次
+        param: collectEmpCode	String(30)	否		揽收员工号
+        param: inProcessWaybillNo	String(100)	否		头程运单号
+        param: sourceZoneCode	String(10)	否		原寄地网点代码
+        param: destZoneCode	String(10)	否		目的地网点代码
+        param: totalWeight	Number(17,5)	否		订单货物总重量，包含子母 件，单位千克，精确到小数点 后3位，如果提供此值，必 须>0
+        param: totalVolume	Number(16,5)	否		订单货物总体积，单位立方厘 米，精确到小数点后3位，会 用于计抛（是否计抛具体商务 沟通中双方约定）
+        param: expressTypeId	Number(5)	否		快件产品类别，支持附录《快 件产品类别表》的产品编码 值，仅可使用与顺丰销售约定 的快件产品
+        param: extraInfoList	List	否		扩展属性
+        param: totalLength	Number(16, 5)	否		客户订单货物总长，单位厘米， 精确到小数点后3位，包含子 母件
+        param: totalWidth	Number(16, 5)	否		客户订单货物总宽，单位厘米， 精确到小数点后3位，包含子 母件
+        param: totalHeight	Number(16, 5)	否		客户订单货物总高，单位厘米， 精确到小数点后3位，包含子 母件
+        param: serviceList	List	否		增值服务信息
+        param: isConfirmNew	Number (1)	否		是否走新通用确认1：支持修改联系人 2：支持改其他客户订单默认0
+        param: destContactInfo	OrderContactInfoDto	否		收件人信息
+        param: isDocall	Number(1)	否		是否通过手持终端通知顺丰收派员上门收件， 支持以下值：1：要求其它为不要求
+        param: specialDeliveryTypeCode	String(3)	否		1. 特殊派送类型代码 身份验证 2. 极效前置单
+        param: specialDeliveryValue	String(100)	否		1> 特殊派件具体表述 证件类型:证件后8位 如：1:09296231（1表示身份证，暂不支持其他证件） 2>.极效前置单时:Y:若不支持则返回普通运单N:若不支持则返回错误码
+        param: sendStartTm	Date	否		预约时间(上门揽收时间)
+        param: pickupAppointEndtime	Date	否		上门揽收截止时间
+        """
+        data = {
+            "orderId": orderId,
+            "dealType": dealType
+        }
+
+        data.update(kwargs)
+        return self.post("EXP_RECE_UPDATE_ORDER", data)
+
+    def get_order(self, orderId, searchType='1', language='zh-CN'):
         """
         订单结果查询接口
-        参数：
-        order_id: 客户订单号
-        search_type: 查询类型:1,正向单查询,传入的orderid为正向定单号,2,退货单查询,传入的orderid为退货原始订单号
-        """
-        pass
 
-    @Service("RouteService", "RouteRequest")
-    def get_route_info(self, tracking_number, tracking_type=1, method_type=1, reference_number=None, check_phoneNo=None):
+        params：
+        orderId	String(64)	是		客户订单号
+        searchType	String(10)	否		查询类型：1正向单 2退货单
+        language	String(10)	否		响应报文的语言， 缺省值为zh-CN，目前支持以下值zh-CN 表示中文简体， zh-TW或zh-HK或 zh-MO表示中文繁体， en表示英文
         """
-        路由信息查询接口
-        param tracking_number: 查询号，根据type不同，含义不同，多个单号以，分割
-        param tracking_type: 查询号类别，1 顺丰运单号 2 客户订单号 3 逆向单
-        param method_type: 路由查询类别 1:标准路由查询
-        param reference_number: 参考编码(目前针对亚马逊客户,由客户传)
-        param check_phoneNo: 校验电话号码后四位值;
-        return: 包含节点信息的路由，路由信息操作码 见https://qiao.sf-express.com/pages/developDoc/index.html?level2=949000
-        """
-        pass
+        data = {
+            "orderId": orderId,
+            "searchType": searchType,
+            "language": language
+        }
 
-    @Service("OrderFilterService", None, ("OrderFilterOption", 4))
-    def can_delivery(self, d_address, orderid=None, filter_type=1, j_tel=None, country="CN",
-                     province=None, city=None, county=None, d_country="CN", d_province=None,
-                     d_city=None, d_county=None, j_address=None, d_tel=None, j_custid=None):
+        return self.post("EXP_RECE_SEARCH_ORDER_RESP", data)
+
+    def get_route_info(self, trackingNumber, trackingType=1, methodType=1, referenceNumber=None, checkPhoneNo=None, language='zh-CN'):
         """
-        订单筛选接口
+        路由查询接口接口-速运类API
+
+        param trackingNumber: 查询号: trackingType=1,则此值为顺丰运单号 如果trackingType=2,则此值为客户订单号
+        param trackingType: 查询号类别: 1:根据顺丰运单号查询,trackingNumber将被当作顺丰运单号处理 2:根据客户订单号查询,trackingNumber将被当作客户订单号处理
+        param methodType: 路由查询类别: 1:标准路由查询 2:定制路由查询
+        param referenceNumber: 参考编码(目前针对亚马逊客户,由客户传)
+        param checkPhoneNo: 校验电话号码后四位值;
+
+        return: 包含节点信息的路由
+        """
+        data = {
+            "trackingNumber": trackingNumber,
+            "trackingType": trackingType,
+            "methodType": methodType,
+            "referenceNumber": referenceNumber,
+            "checkPhoneNo": checkPhoneNo
+        }
+
+        return self.post("EXP_RECE_SEARCH_ROUTES", data)
+
+    def can_delivery(self, orderId, monthlyCard=None, filterType=1, contactInfos=None):
+        """
+        订单筛选接口-速运类API
+
         客户系统通过此接口向顺丰系统发送主动的筛单请求,用于判断客户的收、派地址是否属于顺丰的收派范围。
 
-        param d_address: 到件方详细地址,需要包括省市区
-        param orderid: 客户订单号,filter_type=2则必须提供
-        param filter_type: 筛单类别:1:自动筛单 2:可人工筛单
-        param j_tel: 寄件方电话
-        param country: 寄件人所在国家代码
-        param province: 寄件方所在省份,必须是标准的省名称称谓 如:广东省,如果是直辖市,请直接传北京、上海等
-        param city: 寄件方所属城市名称,必须是标准的城市称谓 如:深圳市。
-        param county: 	寄件人所在县/区,必须是标准的县/区称谓,示例:“福田区”。
-        param d_country: 到件方国家
-        param d_province: 到件方所在省份,必须是标准的省名称称谓 如:广东省,如果是直辖市,请直接传北京、上海等。
-        param d_city: 到件方所属城市名称,必须是标准的城市称谓 
-        param d_county: 到件方所在县/区,必须是标准的县/区称谓
-        param j_address: 寄件方详细地址,包括省市区,
-        param d_tel: 到件方电话
-        param j_custid: 结账号,用于在人工筛单时,筛单人员识别客户使用
+        param orderId: String 到件方详细地址,需要包括省市区
+        param orderid: String 客户订单号,filter_type=2则必须提供
+        param filterType: Int 筛单类别: 1:自动筛单(系统根据地址库进行判断,并返回结果,系统无法检索到可派送的将返回不可派送) 2:可人工筛单(系统首先根据地址库判断,如果无法自动判断是否收派,系统将生成需要人工判断的任务,后续由人工处理,处理结束后,顺丰可主动推送给客户系统)
+        param contactInfos: List 地址信息
         """
-        pass
+
+        data = {
+            "orderId": orderId,
+            "monthlyCard": monthlyCard,
+            "filterType": filterType,
+            "contactInfos": contactInfos
+        }
+
+        return self.post("EXP_RECE_FILTER_ORDER_BSP", data)

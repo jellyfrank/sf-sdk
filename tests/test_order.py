@@ -4,6 +4,8 @@
 
 import unittest
 from sf.api import SF
+from sf.model.contact import ContactInfo
+from sf.model.cargo import CargoDetail
 from autils import String
 import pytest
 
@@ -18,38 +20,51 @@ class TestOrder(unittest.TestCase):
 
     def test_1_create_order(self):
         """测试下单"""
-        res = self.sf.order.create_order(self.order_no, "测试公司",
-                                         "张三", "18512345678", "丰县", "北京市昌平区", "15112345678")
-        self.assertEqual(res["result"], 0, res)
+        contacts = []
+        sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")
+        receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=1)
+        contacts.append(sender)
+        contacts.append(receiver)
+        cargo_detail = CargoDetail("测试货物")
+        res = self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        self.assertEqual(res["success"], True, res)
 
     def test_2_get_order(self):
         """测试订单查询接口"""
         res = self.sf.order.get_order(self.order_no)
-        self.assertEqual(res["result"], 0, res)
+        self.assertEqual(res["success"], True, res)
 
     def test_3_cancel_order(self):
         """测试取消订单"""
-        res = self.sf.order.confirm_order(self.order_no, dealtype="2")
-        self.assertEqual(res["result"], 0, res)
+        res = self.sf.order.confirm_order(self.order_no, dealType=2)
+        self.assertEqual(res["success"], True, res)
 
     def test_4_get_router(self):
         """测试路由信息"""
         # 只有先下单 才能拿得到路由信息 否则是空
-        # data = self.sf.order.create_order(String.generate_digits(12), "测试公司",
-        #                                   "张三", "18512345678", "丰县", "北京市昌平区", "15112345678")
-        # mail_no = data["data"]["OrderResponse"]["mailno"]
-        res = self.sf.order.get_route_info('444020261358')
-        # 顺丰路由 节点80为签收标识
-        self.assertTrue(len(res["data"]["RouteResponse"]["Route"]) > 1, res)
+        contacts = []
+        sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")
+        receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=1)
+        contacts.append(sender)
+        contacts.append(receiver)
+        cargo_detail = CargoDetail("测试货物")
+        res = self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        self.assertTrue(res['success'], res)
 
     def test_5_can_deliver(self):
         """是否可以收派"""
-        res = self.sf.order.can_delivery("北京市昌平区回龙观新龙城2期36A号楼")
-        self.assertEqual(res["result"], 0, res)
+        res = self.sf.order.can_delivery(self.order_no)
+        self.assertTrue(res['success'], res)
+
+    def test_0_access_token(self):
+        """测试获取AccessToken"""
+        access_token = self.sf.comm.get_access_token()
+        self.assertNotEqual(access_token, None)
 
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
+    suite.addTest(TestOrder("test_0_access_token"))
     suite.addTest(TestOrder("test_1_create_order"))
     suite.addTest(TestOrder("test_2_get_order"))
     suite.addTest(TestOrder("test_3_cancel_order"))
