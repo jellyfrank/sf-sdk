@@ -48,7 +48,8 @@ class TestOrder(unittest.TestCase):
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        res = self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        res = self.sf.order.get_route_info(self.order_no)
         self.assertTrue(res['success'], res)
 
     def test_5_can_deliver(self):
