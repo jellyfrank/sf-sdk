@@ -6,7 +6,7 @@
 
 基于顺丰官网开放平台2.0 API开发的Python SDK
 
-版本：2.0.0.0
+版本：2.0.0.2
 
 ## 功能概述
 
@@ -71,4 +71,16 @@ res = self.sf.order.get_route_info(self.order_no)
 
 ```python
 res = self.sf.order.can_delivery(self.order_no)
+```
+
+### 打印电子面单
+
+```python
+res = self.sf.order.get_order(self.order_no)
+documents = [
+    {
+        "masterWaybillNo": res['msgData']['waybillNoInfoList'][0]['waybillNo'],
+    }
+]
+res = self.sf.sheet.sync_print(f"fm_150_standard_QXH",documents)
 ```

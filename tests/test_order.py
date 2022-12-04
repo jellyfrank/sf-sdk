@@ -44,6 +44,12 @@ class TestOrder(unittest.TestCase):
 
     def test_4_get_router(self):
         """测试路由信息"""
+        #{'apiErrorMsg': '', 'apiResponseID': '000184DB8E57803FE6AA43A0CAC24D3F', 
+        # 'apiResultCode': 'A1000', 'apiResultData': 
+        # '{"success":true,"errorCode":"S0000","errorMsg":null,
+        # "msgData":{"routeResps":
+        # [{"mailNo":"066106553309","routes":[{"acceptAddress":"深圳市","acceptTime":"2022-12-04 13:14:09","remark":"顺丰速运 已收取快件","opCode":"50"
+        # }]}]}}'}
         # 只有先下单 才能拿得到路由信息 否则是空
         contacts = []
         sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")

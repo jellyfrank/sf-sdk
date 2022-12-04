@@ -4,6 +4,8 @@
 
 from sf.comm import Comm
 
+QUERY_URL = "https://www.sf-express.com/we/ow/chn/sc/waybill/waybill-detail/"
+
 
 class Order(Comm):
 
