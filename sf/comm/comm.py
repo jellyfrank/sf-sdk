@@ -22,57 +22,6 @@ TOKEN_URL = "https://sfapi.sf-express.com/oauth2/accessToken"
 TOKEN_SANDBOXURL = "https://sfapi-sbox.sf-express.com/oauth2/accessToken"
 
 
-class BaseService(object):
-
-    def __init__(self, func):
-        self.func = func
-
-    def __get__(self, instance, owner):
-        return partial(self.__call__, instance)
-
-    def __call__(self, *args, **kwargs):
-        # 获取方法的默认值
-        vals = tuple(list(args) + list(inspect.getfullargspec(
-            self.func).defaults if inspect.getfullargspec(self.func).defaults else []))
-        data = {}
-        data["service"] = self.__name__
-        ags = inspect.getfullargspec(self.func).args
-        vdata = dict(zip_longest(ags, vals))
-        vdata.update(kwargs)
-        if self.options is None:
-            vdata = {key: str(value) for key,
-                     value in vdata.items() if value and key != 'self'}
-        else:
-            vdata.pop("self")
-            vdata = {k: v for k, v in vdata.items() if v}
-            key, start = self.options
-            parent_keys = list(vdata.keys())[:start]
-            child_keys = list(vdata.keys())[start:]
-            vdata.update({key: str(vdata[key])
-                          for key in parent_keys if vdata[key] is not None and key != 'self'})
-            vdata[key] = {key: str(vdata[key])
-                          for key in child_keys if vdata[key] and key != 'self'}
-        data.update({
-            "data": {
-                self.key: vdata
-            }
-        })
-        return args[0].post(data)
-
-
-class Service(type):
-
-    def __init__(cls, *args, **kwargs):
-        pass
-
-    def __new__(cls, name, key=None, options=None):
-        attrs = {}
-        attrs['__name__'] = name
-        attrs["key"] = key if key else name.split("Service")[0]
-        attrs["options"] = options
-        return type.__new__(cls, name, (BaseService,), attrs)
-
-
 class Comm(object):
     """封装公共请求"""
 
@@ -131,5 +80,5 @@ class Comm(object):
         url = SANDBOXURL if self._sandbox else URL
         res =  requests.post(url, data=post_data, headers=headers).json()
         if res['apiResultCode'] != 'A1000':
-            return res
+            raise Exception(res['apiErrorMsg'])
         return json.loads(res['apiResultData'])

@@ -18,15 +18,18 @@ class TestOrder(unittest.TestCase):
         cls.order_no = String.generate_digits(12)
         cls.mail_no = None
 
-    def test_1_create_order(self):
-        """测试下单"""
+    def _create_order(self):
         contacts = []
         sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")
         receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=1)
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        res = self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        return self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+
+    def test_1_create_order(self):
+        """测试下单"""
+        res = self._create_order()
         self.assertEqual(res["success"], True, res)
 
     def test_2_get_order(self):
@@ -48,7 +51,7 @@ class TestOrder(unittest.TestCase):
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        self.sf.order.create_order(String.generate(12), contacts,[cargo_detail])
         res = self.sf.order.get_route_info(self.order_no)
         self.assertTrue(res['success'], res)
 
@@ -62,14 +65,30 @@ class TestOrder(unittest.TestCase):
         access_token = self.sf.comm.get_access_token()
         self.assertNotEqual(access_token, None)
 
+    def test_6_print(self):
+        """"测试电子面单"""
+        # [{'areaNo': 1, 'pageNo': 1, 'seqNo': 1, '
+        #  token': 'AUTH_tkv12_f146d1855480549d262b5c46ab0ab597ff20a97d9d0db45c16bedeb4fabd112b012deadd477ee524b1d690ce01baa3cdffbb125a6ccf69b73778dba2eb5157eb73744dffd1a1bbe5c4390bfb93ce4c3e9197d359c3ace1b33151306bc9e831ab67720381919951fc04fd23bb349f18cda712e03cdb9961c933bba7d6177fa548e4a43f0933ce2b32089181f98d7c23a786969366c357d7da3f10ac20f099e909e8a27d9f175808a32056e0c85df11786d9c10d75656ea37df97b385c9c79c546', 
+        # 'url': 'https://eos-scp-core-shenzhen-futian1-oss.sf-express.com:443/v1.2/AUTH_EOS-SCP-CORE/print-file-sbox/QXH_e45c4058-6972-4605-9182-e337814f5dff_SF7444462031543_fm_150_standard_QXH_1_1_1.pdf', 
+        # 'waybillNo': 'SF7444462031543'}]
+        res = self.sf.order.get_order(self.order_no)
+        documents = [
+            {
+                "masterWaybillNo": res['msgData']['waybillNoInfoList'][0]['waybillNo'],
+            }
+        ]
+        res = self.sf.sheet.sync_print(f"fm_150_standard_QXH",documents)
+        self.assertTrue(len(res[0]), res)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(TestOrder("test_0_access_token"))
     suite.addTest(TestOrder("test_1_create_order"))
     suite.addTest(TestOrder("test_2_get_order"))
-    suite.addTest(TestOrder("test_3_cancel_order"))
     suite.addTest(TestOrder("test_4_get_router"))
     suite.addTest(TestOrder("test_5_can_deliver"))
+    suite.addTest(TestOrder("test_6_print"))
+    suite.addTest(TestOrder("test_3_cancel_order"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)

@@ -4,7 +4,7 @@
 
 from sf.comm import Comm
 from sf.order import Order
-
+from sf.order import Sheet
 
 class SF(object):
     """顺丰SDK"""
@@ -19,3 +19,4 @@ class SF(object):
 
     comm = Comm()
     order = Order()
+    sheet = Sheet()
