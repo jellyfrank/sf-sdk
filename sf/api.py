@@ -9,13 +9,14 @@ from sf.order import Sheet
 class SF(object):
     """顺丰SDK"""
 
-    def __init__(self, clientcode, checkword, sandbox=False):
+    def __init__(self, clientcode, checkword, sandbox=False, language='zh-CN'):
         """
         初始化方法
         """
         self.clientcode = clientcode
         self.checkword = checkword
         self.sandbox = sandbox
+        self.language = language
 
     comm = Comm()
     order = Order()

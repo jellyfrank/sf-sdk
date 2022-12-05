@@ -29,6 +29,7 @@ class Comm(object):
         self._clientcode = instance.clientcode
         self._checkword = instance.checkword
         self._sandbox = instance.sandbox
+        self._language = instance.language
         self.get_access_token()
         return self
 

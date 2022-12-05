@@ -59,7 +59,7 @@ class Order(Comm):
                 msgData: 成功后返回的数据
         """
         data = {
-            "language": "zh-CN",
+            "language": kwargs.get("language",None) or self._language,
             "orderId": orderId,
             "contactInfoList": [c.to_dict() for c in contactInfoList],
             "cargoDetails": [c.to_dict() for c in cargoDetails],
@@ -107,7 +107,7 @@ class Order(Comm):
         data.update(kwargs)
         return self.post("EXP_RECE_UPDATE_ORDER", data)
 
-    def get_order(self, orderId, searchType='1', language='zh-CN'):
+    def get_order(self, orderId, searchType='1', language=None):
         """
         订单结果查询接口
 
@@ -117,6 +117,7 @@ class Order(Comm):
         language	String(10)	否		响应报文的语言， 缺省值为zh-CN，目前支持以下值zh-CN 表示中文简体， zh-TW或zh-HK或 zh-MO表示中文繁体， en表示英文
         """
         data = {
+            "language": language or self._language,
             "orderId": orderId,
             "searchType": searchType,
             "language": language
@@ -124,7 +125,7 @@ class Order(Comm):
 
         return self.post("EXP_RECE_SEARCH_ORDER_RESP", data)
 
-    def get_route_info(self, trackingNumber, trackingType=1, methodType=1, referenceNumber=None, checkPhoneNo=None, language='zh-CN'):
+    def get_route_info(self, trackingNumber, trackingType=1, methodType=1, referenceNumber=None, checkPhoneNo=None, language=None):
         """
         路由查询接口接口-速运类API
 
@@ -137,6 +138,7 @@ class Order(Comm):
         return: 包含节点信息的路由
         """
         data = {
+            "language": language or self._language,
             "trackingNumber": trackingNumber,
             "trackingType": trackingType,
             "methodType": methodType,

@@ -14,7 +14,7 @@ class TestOrder(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True)
+        cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True, 'en')
         cls.order_no = String.generate_digits(12)
         cls.mail_no = None
 
@@ -59,6 +59,7 @@ class TestOrder(unittest.TestCase):
         cargo_detail = CargoDetail("测试货物")
         self.sf.order.create_order(String.generate(12), contacts,[cargo_detail])
         res = self.sf.order.get_route_info(self.order_no)
+        print(res)
         self.assertTrue(res['success'], res)
 
     def test_5_can_deliver(self):
