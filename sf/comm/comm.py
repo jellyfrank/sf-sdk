@@ -36,13 +36,14 @@ class Comm(object):
     def get_access_token(self):
         """获取AccessToken"""
         url = f"{TOKEN_SANDBOXURL if self._sandbox else TOKEN_URL}?partnerID={self._clientcode}&secret={self._checkword}&grantType=password"
-        res = requests.post(url,headers={
-            "content-type":"application/x-www-form-urlencoded;charset=UTF-8"
+        res = requests.post(url, headers={
+            "content-type": "application/x-www-form-urlencoded;charset=UTF-8"
         }).json()
         if res['apiResultCode'] == "A1000":
             self._access_token = res['accessToken']
         else:
-            self._access_token = None
+            raise Exception(
+                f"getting access token error:{res['apiResultCode'],res['apiErrorMsg']}")
         return self._access_token
 
     def get_public_params(self):
@@ -53,9 +54,9 @@ class Comm(object):
             "timestamp": int(time.time()),
             "accessToken": self._access_token
         }
-        return data    
+        return data
 
-    def post(self,service, data):
+    def post(self, service, data):
         """
         提交请求
 
@@ -65,7 +66,7 @@ class Comm(object):
         post_data = self.get_public_params()
         copy_data = copy(data)
 
-        for key,value in copy_data.items():
+        for key, value in copy_data.items():
             if value is None:
                 data.pop(key)
 
@@ -75,11 +76,11 @@ class Comm(object):
         })
 
         headers = {
-            "content-type":"application/x-www-form-urlencoded"
+            "content-type": "application/x-www-form-urlencoded"
         }
 
         url = SANDBOXURL if self._sandbox else URL
-        res =  requests.post(url, data=post_data, headers=headers).json()
+        res = requests.post(url, data=post_data, headers=headers).json()
         if res['apiResultCode'] != 'A1000':
             raise Exception(res['apiErrorMsg'])
         return json.loads(res['apiResultData'])

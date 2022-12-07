@@ -87,6 +87,10 @@ class TestOrder(unittest.TestCase):
         res = self.sf.sheet.sync_print(f"fm_150_standard_QXH",documents)
         self.assertTrue(len(res[0]), res)
 
+    def test_7_get_express_types(self):
+        res = SF.get_express_types()
+        self.assertTrue(len(res), res)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -97,5 +101,6 @@ if __name__ == "__main__":
     suite.addTest(TestOrder("test_5_can_deliver"))
     suite.addTest(TestOrder("test_6_print"))
     suite.addTest(TestOrder("test_3_cancel_order"))
+    suite.addTest(TestOrder("test_7_get_express_types"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)

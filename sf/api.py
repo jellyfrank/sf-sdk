@@ -5,6 +5,9 @@
 from sf.comm import Comm
 from sf.order import Order
 from sf.order import Sheet
+import os
+import csv
+
 
 class SF(object):
     """顺丰SDK"""
@@ -21,3 +24,12 @@ class SF(object):
     comm = Comm()
     order = Order()
     sheet = Sheet()
+
+    @classmethod
+    def get_express_types(cls):
+        express = []
+        csv_path = os.path.dirname(__file__)
+        with open(os.path.join(csv_path, "data/express_type.csv")) as f:
+            for row in csv.reader(f):
+                express.append((row[0], row[1], row[2]))
+        return express

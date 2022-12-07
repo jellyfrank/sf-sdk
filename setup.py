@@ -42,7 +42,13 @@ setup(
     include_package_data= True,
     install_requires=[
         'requests',
+        'autils'
     ],
+    package_data={
+        "":[
+            'sf/data/express_type.csv',
+        ]
+    },
     setup_requires=[
         'requests',
     ],
