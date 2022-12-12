@@ -7,7 +7,7 @@ from sf.api import SF
 from sf.model.contact import ContactInfo
 from sf.model.cargo import CargoDetail
 from sf.model.address import Address
-from autils import String
+from autils import randomstr
 import pytest
 
 
@@ -16,7 +16,7 @@ class TestOrder(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True, 'en')
-        cls.order_no = String.generate_digits(12)
+        cls.order_no = randomstr.generate_digits(12)
         cls.mail_no = None
 
     def _create_order(self):
@@ -58,7 +58,7 @@ class TestOrder(unittest.TestCase):
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        self.sf.order.create_order(String.generate(12), contacts,[cargo_detail])
+        self.sf.order.create_order(randomstr.generate(12), contacts,[cargo_detail])
         res = self.sf.order.get_route_info(self.order_no)
         self.assertTrue(res['success'], res)
 
