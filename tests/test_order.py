@@ -38,7 +38,7 @@ class TestOrder(unittest.TestCase):
         res = self.sf.order.get_order(self.order_no)
         self.assertEqual(res["success"], True, res)
 
-    def test_3_cancel_order(self):
+    def test_99_cancel_order(self):
         """测试取消订单"""
         res = self.sf.order.confirm_order(self.order_no, dealType=2)
         self.assertEqual(res["success"], True, res)
@@ -79,6 +79,8 @@ class TestOrder(unittest.TestCase):
         # 'url': 'https://eos-scp-core-shenzhen-futian1-oss.sf-express.com:443/v1.2/AUTH_EOS-SCP-CORE/print-file-sbox/QXH_e45c4058-6972-4605-9182-e337814f5dff_SF7444462031543_fm_150_standard_QXH_1_1_1.pdf', 
         # 'waybillNo': 'SF7444462031543'}]
         res = self.sf.order.get_order(self.order_no)
+        print('+++++++++++++++++++')
+        print(res)
         documents = [
             {
                 "masterWaybillNo": res['msgData']['waybillNoInfoList'][0]['waybillNo'],
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     suite.addTest(TestOrder("test_4_get_router"))
     suite.addTest(TestOrder("test_5_can_deliver"))
     suite.addTest(TestOrder("test_6_print"))
-    suite.addTest(TestOrder("test_3_cancel_order"))
+    suite.addTest(TestOrder("test_99_cancel_order"))
     suite.addTest(TestOrder("test_7_get_express_types"))
     suite.addTest(TestOrder("test_8_get_custom_templates"))
     suite.addTest(TestOrder("test_9_query_delivery"))
