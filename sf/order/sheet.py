@@ -5,6 +5,7 @@
 from sf.comm import Comm
 import requests
 
+
 class Sheet(Comm):
 
     def print(self, templateCode, documents, version='2.0', fileType="pdf", sync=True, customTemplateCode=None, extJson=None):
@@ -25,21 +26,37 @@ class Sheet(Comm):
             "documents": documents,
             "version": version,
             "fileType": fileType,
-            "sync":sync,
+            "sync": sync,
             "customTemplateCode": customTemplateCode,
             "extJson": extJson
         }
 
         return self.post("COM_RECE_CLOUD_PRINT_WAYBILLS", data)
 
-    
     def sync_print(self, templateCode, documents):
         """同步获取电子面单"""
         res = self.print(templateCode, documents)
         files = []
         for file in res['obj']['files']:
-            resp = requests.get(file['url'],headers={
+            resp = requests.get(file['url'], headers={
                 "X-Auth-token": file['token']
             })
             files.append(resp.content)
-        return files       
+        return files
+
+    def get_custom_templates(self, sellerUserId, type=1, standardTemplateCode=None,):
+        """
+        获取自定义面单编码
+
+        param sellerUserId: isv商家在isv平台注册的账号
+        param type: 	查询类型，（1：商家自定义模板）
+        param standardTemplateCode: 标准模板code，取值查看 2.3.2，不传值时，则查询所有规格的
+        """
+
+        data = {
+            "sellerUserId": sellerUserId,
+            "type": type,
+            "standardTemplateCode": standardTemplateCode
+        }
+
+        return self.post("COM_RECE_CLOUD_CUSTOMTEMPLATE_LIST", data)

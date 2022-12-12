@@ -6,6 +6,7 @@ import unittest
 from sf.api import SF
 from sf.model.contact import ContactInfo
 from sf.model.cargo import CargoDetail
+from sf.model.address import Address
 from autils import String
 import pytest
 
@@ -59,7 +60,6 @@ class TestOrder(unittest.TestCase):
         cargo_detail = CargoDetail("测试货物")
         self.sf.order.create_order(String.generate(12), contacts,[cargo_detail])
         res = self.sf.order.get_route_info(self.order_no)
-        print(res)
         self.assertTrue(res['success'], res)
 
     def test_5_can_deliver(self):
@@ -91,6 +91,15 @@ class TestOrder(unittest.TestCase):
         res = SF.get_express_types()
         self.assertTrue(len(res), res)
 
+    def test_8_get_custom_templates(self):
+        res = self.sf.sheet.get_custom_templates("")
+
+    def test_9_query_delivery(self):
+        src_address = Address("北京市","北京市","昌平区","回龙观大街")
+        dest_address = Address("山东省","青岛市","市北区","万达广场")
+        res = self.sf.order.query_delivery(1,src_address, dest_address)
+        self.assertTrue(res['success'],res)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -102,5 +111,7 @@ if __name__ == "__main__":
     suite.addTest(TestOrder("test_6_print"))
     suite.addTest(TestOrder("test_3_cancel_order"))
     suite.addTest(TestOrder("test_7_get_express_types"))
+    suite.addTest(TestOrder("test_8_get_custom_templates"))
+    suite.addTest(TestOrder("test_9_query_delivery"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)

@@ -5,3 +5,4 @@
 from . import contact
 from . import cargo
 from . import service
+from . import address

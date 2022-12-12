@@ -168,3 +168,31 @@ class Order(Comm):
         }
 
         return self.post("EXP_RECE_FILTER_ORDER_BSP", data)
+
+    
+    def query_delivery(self, businessType,destAddress,srcAddress, weight=None,volume=None,consignedTime=None,searchPrice=0):
+        """
+        时效标准及价格查询接口-速运类API
+
+        客户可通过接口查询从特定原寄地寄特定目的地的时效和价格。
+
+        param businessType: 快件产品：可以为空，为空时查询默认时效对应的产品列表。不为空时以数字代码业务类型，例如：1：表示“”2：表示“顺丰特惠”5：表示“顺丰次晨”6：表示“即日件
+        param destAddress: 目的地信息
+        param srcAddress: 原寄地信息
+        param weight: 货物总重量，包含子母件，单位千克，精确到小数点后2位，如果提供此值，必须>0
+        param volume: 货物的体积（长、宽、高分别以厘米为单位计算体积），精确到小数点后2位。
+        param consignedTime: 寄件时间，格式为YYYY-MM-DD HH24:MM:SS，示例2013-12-27 17:54:20。
+        param searchPrice: 1：表示查询含价格的接口0：表示查询不含价格的接口 备注：限制只能为0,1或者不传searchPrice，不可以为空,null
+        """
+
+        data = {
+            "businessType": businessType,
+            "destAddress": destAddress.to_dict(),
+            "srcAddress": srcAddress.to_dict(),
+            "weight": weight,
+            "volume": volume,
+            "consignedTime": consignedTime,
+            "searchPrice": searchPrice
+        }
+
+        return self.post("EXP_RECE_QUERY_DELIVERTM", data)
