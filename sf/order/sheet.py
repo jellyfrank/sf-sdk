@@ -3,6 +3,7 @@
 # @Author  : Kevin Kong (kfx2007@163.com)
 
 from sf.comm import Comm
+from sf.comm import SheetException
 import requests
 
 
@@ -36,6 +37,8 @@ class Sheet(Comm):
     def sync_print(self, templateCode, documents):
         """同步获取电子面单"""
         res = self.print(templateCode, documents)
+        if res['success'] == False:
+            raise SheetException(f"Getting template error:{res['errorMessage']}")
         files = []
         for file in res['obj']['files']:
             resp = requests.get(file['url'], headers={
