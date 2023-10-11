@@ -9,6 +9,20 @@ QUERY_URL = "https://www.sf-express.com/we/ow/chn/sc/waybill/waybill-detail/"
 
 class Order(Comm):
 
+    def pre_order(self, orderId, contactInfoList, cargoDetails, monthlyCard=None, expressTypeId=1, isReturnRoutelabel=1, **kwargs):
+        data = {
+            "language": kwargs.get("language",None) or self._language,
+            "orderId": orderId,
+            "contactInfoList": [c.to_dict() for c in contactInfoList],
+            "cargoDetails": [c.to_dict() for c in cargoDetails],
+            "monthlyCard": monthlyCard,
+            "expressTypeId": expressTypeId,
+            "isReturnRoutelabel": isReturnRoutelabel,
+        }
+
+        data.update(kwargs)
+        return self.post("EXP_RECE_PRE_ORDER", data)
+
     def create_order(self, orderId, contactInfoList, cargoDetails, monthlyCard=None, expressTypeId=1, isReturnRoutelabel=1, **kwargs):
         """
         下订单接口
