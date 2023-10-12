@@ -80,7 +80,7 @@ class Comm(object):
         }
 
         url = SANDBOXURL if self._sandbox else URL
-        print(url)
+        
         res = requests.post(url, data=post_data, headers=headers).json()
         if res['apiResultCode'] != 'A1000':
             raise Exception(res['apiErrorMsg'])

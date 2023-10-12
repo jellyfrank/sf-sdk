@@ -16,9 +16,9 @@ class Address(object):
         self.address =address
         self.code = code
 
-        if province.lower() in ['hong kong','香港']:
+        if (self.province and self.province.lower() in ['hong kong','香港']) or (self.city and self.city.lower in ['hong kong','香港']):
             self.code = '852'
-        if province.lower() in ['macau','澳门']:
+        if (self.province and self.province.lower() in ['macau','澳门']) or (self.city and self.city.lower in ['macau','澳门']):
             self.code = '853'
 
 
