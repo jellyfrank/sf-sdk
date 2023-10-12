@@ -16,6 +16,12 @@ class Address(object):
         self.address =address
         self.code = code
 
+        if province.lower() in ['hong kong','香港']:
+            self.code = '852'
+        if province.lower() in ['macau','澳门']:
+            self.code = '853'
+
+
     def _convert(self,key):
         if key in MAPPING:
             return MAPPING[key]
