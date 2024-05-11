@@ -34,9 +34,9 @@ class Sheet(Comm):
 
         return self.post("COM_RECE_CLOUD_PRINT_WAYBILLS", data)
 
-    def sync_print(self, templateCode, documents):
+    def sync_print(self, templateCode, documents, **kwargs):
         """同步获取电子面单"""
-        res = self.print(templateCode, documents)
+        res = self.print(templateCode, documents,**kwargs)
         if res['success'] == False:
             raise SheetException(f"Getting template error:{res['errorMessage']}")
         files = []
