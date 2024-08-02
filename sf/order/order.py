@@ -85,6 +85,24 @@ class Order(Comm):
         data.update(kwargs)
         return self.post("EXP_RECE_CREATE_ORDER", data)
 
+    def create_sub_order(self, orderId, parcelQty, waybillNoInfoList=None):
+        """
+        子单号申请接口-速运类API
+        客户在下单成功后 ，因业务场景需要可以调用此接口获取更多的子单号数。但不能超过配置的最大数/1200个。
+
+        :param orderId: 客户订单号
+        :param parcelQty: 子单号数
+        :param waybillNoInfoList: 顺丰运单号子单申请需要指定每个子包裹的长宽高提交重量时需要传入此参数
+        """
+
+        data = {
+            "orderId": orderId,
+            "parcelQty": parcelQty,
+            "waybillNoInfoList": waybillNoInfoList
+        }
+
+        return self.post("EXP_RECE_GET_SUB_MAILNO", data)
+
     def confirm_order(self, orderId, dealType=1, **kwargs):
         """
         订单确认/取消接口-速运类API

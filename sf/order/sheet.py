@@ -37,7 +37,7 @@ class Sheet(Comm):
     def sync_print(self, templateCode, documents, **kwargs):
         """同步获取电子面单"""
         res = self.print(templateCode, documents,**kwargs)
-        if res['success'] == False:
+        if not res['success']:
             raise SheetException(f"Getting template error:{res['errorMessage']}")
         files = []
         for file in res['obj']['files']:
