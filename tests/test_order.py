@@ -84,7 +84,7 @@ class TestOrder(unittest.TestCase):
                 "masterWaybillNo": res['msgData']['waybillNoInfoList'][0]['waybillNo'],
             }
         ]
-        res = self.sf.sheet.sync_print(f"fm_150_standard_YRGYSQ5DGXHQ",documents)
+        res = self.sf.sheet.sync_print(f"fm_150_standard_{self.sf.clientcode}",documents)
         self.assertTrue(len(res[0]), res)
 
     def test_7_get_express_types(self):
@@ -116,15 +116,15 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(TestOrder("test_0_access_token"))
     suite.addTest(TestOrder("test_1_create_order"))
-    # suite.addTest(TestOrder("test_2_get_order"))
-    # suite.addTest(TestOrder("test_4_get_router"))
-    # suite.addTest(TestOrder("test_5_can_deliver"))
-    # suite.addTest(TestOrder("test_6_print"))
-    # suite.addTest(TestOrder("test_99_cancel_order"))
-    # suite.addTest(TestOrder("test_7_get_express_types"))
-    # suite.addTest(TestOrder("test_8_get_custom_templates"))
-    # suite.addTest(TestOrder("test_9_query_delivery"))
-    # suite.addTest(TestOrder("test_10_hk_mau"))
+    suite.addTest(TestOrder("test_2_get_order"))
+    suite.addTest(TestOrder("test_4_get_router"))
+    suite.addTest(TestOrder("test_5_can_deliver"))
+    suite.addTest(TestOrder("test_6_print"))
+    suite.addTest(TestOrder("test_99_cancel_order"))
+    suite.addTest(TestOrder("test_7_get_express_types"))
+    suite.addTest(TestOrder("test_8_get_custom_templates"))
+    suite.addTest(TestOrder("test_9_query_delivery"))
+    suite.addTest(TestOrder("test_10_hk_mau"))
     suite.addTest(TestOrder("test_11_create_suborders"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
