@@ -31,8 +31,10 @@ class Sheet(Comm):
             "customTemplateCode": customTemplateCode,
             "extJson": extJson
         }
-
-        return self.post("COM_RECE_CLOUD_PRINT_WAYBILLS", data)
+        if fileType == 'pdf':
+            return self.post("COM_RECE_CLOUD_PRINT_WAYBILLS", data)
+        if fileType == 'html':
+            return self.post("COM_RECE_CLOUD_PRINT_HTML", data)
 
     def sync_print(self, templateCode, documents, **kwargs):
         """同步获取电子面单"""
