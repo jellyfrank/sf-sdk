@@ -29,7 +29,7 @@ class SF(object):
     def get_express_types(cls):
         express = []
         csv_path = os.path.dirname(__file__)
-        with open(os.path.join(csv_path, "data/express_type.csv")) as f:
+        with open(os.path.join(csv_path, "data","express_type.csv")) as f:
             for row in csv.reader(f):
                 express.append((row[0], row[1], row[2]))
         return express

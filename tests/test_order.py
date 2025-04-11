@@ -15,7 +15,7 @@ class TestOrder(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True, 'en')
+        cls.sf = SF("KXXQSnV3oL", "L3FbF6FpMvUFPQUfbNto0flGDDZqdPH4", True, 'en')
         cls.order_no = randomstr.generate_digits(12)
         cls.mail_no = None
 
@@ -79,14 +79,12 @@ class TestOrder(unittest.TestCase):
         # 'url': 'https://eos-scp-core-shenzhen-futian1-oss.sf-express.com:443/v1.2/AUTH_EOS-SCP-CORE/print-file-sbox/QXH_e45c4058-6972-4605-9182-e337814f5dff_SF7444462031543_fm_150_standard_QXH_1_1_1.pdf', 
         # 'waybillNo': 'SF7444462031543'}]
         res = self.sf.order.get_order(self.order_no)
-        print('+++++++++++++++++++')
-        print(res)
         documents = [
             {
                 "masterWaybillNo": res['msgData']['waybillNoInfoList'][0]['waybillNo'],
             }
         ]
-        res = self.sf.sheet.sync_print(f"fm_150_standard_QXH",documents)
+        res = self.sf.sheet.sync_print(f"fm_150_standard_{self.sf.clientcode}",documents)
         self.assertTrue(len(res[0]), res)
 
     def test_7_get_express_types(self):
@@ -94,13 +92,24 @@ class TestOrder(unittest.TestCase):
         self.assertTrue(len(res), res)
 
     def test_8_get_custom_templates(self):
-        res = self.sf.sheet.get_custom_templates("")
+        res = self.sf.sheet.get_custom_templates("123456",0)
+        self.assertTrue(res['success'],res)
 
     def test_9_query_delivery(self):
         src_address = Address("北京市","北京市","昌平区","回龙观大街")
         dest_address = Address("山东省","青岛市","市北区","万达广场")
         res = self.sf.order.query_delivery(1,src_address, dest_address)
         self.assertTrue(res['success'],res)
+
+    def test_10_hk_mau(self):
+        src_address = Address("北京市","北京市","昌平区","回龙观大街")
+        dest_address = Address("台湾","新竹市","市北区","万达广场")
+        res = self.sf.order.query_delivery(1,src_address, dest_address)
+        self.assertTrue(res['success'],res)
+
+    def test_11_create_suborders(self):
+        res = self.sf.order.create_sub_order(self.order_no, 3)
+        self.assertTrue(res['success'], res)
 
 
 if __name__ == "__main__":
@@ -115,5 +124,7 @@ if __name__ == "__main__":
     suite.addTest(TestOrder("test_7_get_express_types"))
     suite.addTest(TestOrder("test_8_get_custom_templates"))
     suite.addTest(TestOrder("test_9_query_delivery"))
+    suite.addTest(TestOrder("test_10_hk_mau"))
+    suite.addTest(TestOrder("test_11_create_suborders"))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
