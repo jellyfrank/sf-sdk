@@ -4,15 +4,17 @@
 
 from copy import copy
 
+
 class ContactInfo(object):
 
-    def __init__(self, address, country='CN', contactType=2, company=None, contact=None, mobile=None, zoneCode=None, province=None, city=None, postCode=None, email=None, taxNo=None):
+    def __init__(self, address, country='CN', contactType=2, company=None, contact=None, mobile=None, zoneCode=None, province=None, city=None, postCode=None, email=None, taxNo=None, tel=None):
         self.address = address
         self.country = country
         self.contactType = contactType
         self.company = company
         self.contact = contact
         self.mobile = mobile
+        self.tel = tel
         self.zoneCode = zoneCode
         self.province = province
         self.city = city
@@ -28,6 +30,7 @@ class ContactInfo(object):
             "company":self.company,
             "contact":self.contact,
             "mobile":self.mobile,
+            "tel": self.tel,
             "zoneCode":self.zoneCode,
             "province":self.province,
             "city":self.city,

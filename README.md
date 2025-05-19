@@ -41,8 +41,8 @@ sf.order.create_order(clientid,..)
 
 ```python
 contacts = []
-sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")
-receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=1)
+sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678",contactType=1)
+receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=2)
 contacts.append(sender)
 contacts.append(receiver)
 cargo_detail = CargoDetail("测试货物")
