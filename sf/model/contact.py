@@ -6,9 +6,9 @@ from copy import copy
 
 class ContactInfo(object):
 
-    def __init__(self, address, conuntry='CN', contactType=2, company=None, contact=None, mobile=None, zoneCode=None, province=None, city=None, postCode=None, email=None, taxNo=None):
+    def __init__(self, address, country='CN', contactType=2, company=None, contact=None, mobile=None, zoneCode=None, province=None, city=None, postCode=None, email=None, taxNo=None):
         self.address = address
-        self.conuntry = conuntry
+        self.country = country
         self.contactType = contactType
         self.company = company
         self.contact = contact
@@ -23,7 +23,7 @@ class ContactInfo(object):
     def to_dict(self):
         res = {
             "address":self.address,
-            "conuntry":self.conuntry,
+            "country":self.country,
             "contactType":self.contactType,
             "company":self.company,
             "contact":self.contact,
