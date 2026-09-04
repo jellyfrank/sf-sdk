@@ -2,13 +2,6 @@
 # @Time    : 2019-08-21
 # @Author  : Kevin Kong (kfx2007@163.com)
 
-import base64
-from hashlib import md5
-from lxml import etree
-import inspect
-from itertools import zip_longest
-from functools import partial
-
 import requests
 import uuid
 import time

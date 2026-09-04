@@ -228,3 +228,87 @@ class Order(Comm):
         }
 
         return self.post("EXP_RECE_QUERY_DELIVERTM", data)
+
+    def recommend_products(self, srcProvince, srcCity, destProvince, destCity,
+                           sendTime, weight, paymentTerms, srcAddress,
+                           destAddress, **kwargs):
+        """产品推荐接口-速运类API。
+
+        返回顺丰可用产品、预计送达时间、计费重量、币种、总费用及
+        增值服务费明细。燃油附加费在 ``serviceFeeList`` 中的服务代码
+        为 ``IN15``。
+
+        :param srcProvince: 原寄地省/一级行政区
+        :param srcCity: 原寄地市/二级行政区
+        :param destProvince: 目的地省/一级行政区
+        :param destCity: 目的地市/二级行政区
+        :param sendTime: 寄件时间，格式 ``YYYY-MM-DD HH:MM:SS``
+        :param weight: 重量，单位 kg
+        :param paymentTerms: 付款方式：1寄付、2到付、3寄转第三方、4到转第三方
+        :param srcAddress: 原寄地详细地址
+        :param destAddress: 目的地详细地址
+        :param kwargs: 顺丰接口的其他可选字段，如 monthlyCard、srcCounty、
+            destCounty、commodityNameList、declaredValue、declaredCurrency 等
+        :return: 顺丰接口原始响应字典
+        """
+        data = {
+            "srcProvince": srcProvince,
+            "srcCity": srcCity,
+            "destProvince": destProvince,
+            "destCity": destCity,
+            "sendTime": sendTime,
+            "weight": weight,
+            "paymentTerms": paymentTerms,
+            "srcAddress": srcAddress,
+            "destAddress": destAddress,
+        }
+
+        data.update(kwargs)
+        return self.post("EXP_RECE_PSDS_PRODUCT_RECOMMEND", data)
+
+    def estimate_total_fee(self, customerCode, interProductCode, senderInfo,
+                           receiverInfo, **kwargs):
+        """预估总费用接口-国际件API。
+
+        该接口返回 ``currency``、``totalFee`` 和 ``feeInfoList``，其中费用
+        明细可包含燃油附加费。调用前需在顺丰开放平台开通对应接口权限。
+
+        :param customerCode: 顺丰国际客户编码
+        :param interProductCode: 国际产品映射码
+        :param senderInfo: 寄件方信息字典
+        :param receiverInfo: 收件方信息字典
+        :param kwargs: parcelTotalWeight、paymentInfo、customsInfo、
+            addServiceInfoList 等其他可选字段
+        :return: 顺丰接口原始响应字典
+        """
+        data = {
+            "customerCode": customerCode,
+            "interProductCode": interProductCode,
+            "senderInfo": senderInfo,
+            "receiverInfo": receiverInfo,
+        }
+
+        data.update(kwargs)
+        return self.post("COM_RECE_IUOP_ESTIMATE_FEE", data)
+
+    def query_waybill_fee(self, trackingType, trackingNum,
+                          bizTemplateCode=None, **kwargs):
+        """清单运费查询接口-速运类API。
+
+        支持按客户订单号或顺丰运单号查询已产生的费用。燃油附加费在
+        ``waybillFeeList`` 中的费用类型为 ``14``。
+
+        :param trackingType: 查询类型：1按客户订单号，2按顺丰运单号
+        :param trackingNum: 客户订单号或顺丰运单号
+        :param bizTemplateCode: 可选业务配置代码
+        :param kwargs: 顺丰接口后续扩展字段
+        :return: 顺丰接口原始响应字典
+        """
+        data = {
+            "trackingType": str(trackingType),
+            "trackingNum": trackingNum,
+            "bizTemplateCode": bizTemplateCode,
+        }
+
+        data.update(kwargs)
+        return self.post("EXP_RECE_QUERY_SFWAYBILL", data)

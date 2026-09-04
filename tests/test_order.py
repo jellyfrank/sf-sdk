@@ -2,21 +2,28 @@
 # @Time    : 2019-08-21
 # @Author  : Kevin Kong (kfx2007@163.com)
 
+import os
 import unittest
+import uuid
 from sf.api import SF
 from sf.model.contact import ContactInfo
 from sf.model.cargo import CargoDetail
 from sf.model.address import Address
-from autils import randomstr
-import pytest
 
 
 class TestOrder(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.sf = SF("KXXQSnV3oL", "L3FbF6FpMvUFPQUfbNto0flGDDZqdPH4", True, 'en')
-        cls.order_no = randomstr.generate_digits(12)
+        clientcode = os.environ.get("SF_SANDBOX_CLIENT_CODE")
+        checkword = os.environ.get("SF_SANDBOX_CHECKWORD")
+        if not clientcode or not checkword:
+            raise unittest.SkipTest(
+                "Set SF_SANDBOX_CLIENT_CODE and SF_SANDBOX_CHECKWORD "
+                "to run live sandbox tests."
+            )
+        cls.sf = SF(clientcode, checkword, True, 'en')
+        cls.order_no = uuid.uuid4().hex[:12]
         cls.mail_no = None
 
     def _create_order(self):
@@ -58,7 +65,7 @@ class TestOrder(unittest.TestCase):
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        self.sf.order.create_order(randomstr.generate(12), contacts,[cargo_detail])
+        self.sf.order.create_order(uuid.uuid4().hex[:12], contacts,[cargo_detail])
         res = self.sf.order.get_route_info(self.order_no)
         self.assertTrue(res['success'], res)
 
