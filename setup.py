@@ -16,7 +16,9 @@ with open(path.join(this_directory, 'README.md'),'r',encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name = "sf-sdk",
+    # PyPI normalizes hyphens and underscores, but this project's existing
+    # release files use the canonical underscore form for source archives.
+    name = "sf_sdk",
     version = sf.__version__,
     description = "Shunfeng Express Python SDK",
     long_description = long_description,
